@@ -1,0 +1,31 @@
+{
+  "name": "transbase",
+  "version": "0.0.1",
+  "description": "A node.js driver for transbase",
+  "main": "transbase.js",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:TransactionSoftwareGmbH/transbase-nodejs.git"
+  },
+  "gypfile": true,
+  "binary": {
+    "napi_versions": [
+      5
+    ]
+  },
+  "scripts": {
+    "install": "prebuild-install --runtime napi || node-gyp rebuild",
+    "rebuild": "node-gyp rebuild",
+    "prebuild": "prebuild --runtime napi --all --verbose --include-regex \".(node|lib)$\"",
+    "test": "mocha test/*.test.js --timeout 5000"
+  },
+  "dependencies": {
+    "bindings": "1.5.0",
+    "node-addon-api": "3.0.2",
+    "prebuild-install": "^6.0.0"
+  },
+  "devDependencies": {
+    "mocha": "^8.2.1",
+    "prebuild": "^10.0.1"
+  }
+}

@@ -1,0 +1,86 @@
+# Transbase NodeJS Driver
+
+This is a nodejs [transbase](https://www.transaction.de/loesungen/transbase-ressourcenoptimierte-hochleistungsdatenbank) client based on tci.
+
+## Install
+
+```
+npm install transbase-nodejs
+```
+or if you are using yarn
+```
+yarn add tranbase-nodejs
+```
+
+> If prebuild binaries are not available for you system, you need to install [node-gyp](https://github.com/nodejs/node-gyp/blob/master/README.md) first to make sure that native adddon can be build on your system.
+
+## Example 
+
+```js
+const { Transbase } = require("transbase-nodejs");
+
+const transbase = new Transbase({
+  url: "//localhost:2024/sample",
+  user: "tbadmin",
+  password: "",
+});
+
+transbase.query("select * from cashbook").toArray(); //all rows as object array
+
+transbase.close();
+```
+insert update and deletes are execute but the number of affected rows is returned instead:
+```js
+transbase.query("insert into cashbook values (42, default, 100, 'INSERT');") // = 1
+```
+
+
+## Api Reference
+
+#### `class Transbase(options:{url:string,user:string,password:string})`
+Creates a new Transbase Client, connects and login to the database given by the url authenticated by the given user and password. Don't forget to invoke [`close`](#close) when your done.
+#### `query(statement:string): ResultSet|number`
+executes the given statement directly. In case of a "select" statement a  [ResultSet](#ResultSet) object is returned, otherwise the number of affected rows.
+#### <a id="#close"></a>`close(): void`
+closes the transbase clients and clean up allocated resources
+
+#### <a id="#ResultSet"></a> `class ResultSet`
+#### `next(): object`
+fetches the next row as object or undefined if no more data is found. The object keys are the column names.
+#### `toArray(): object[]`
+convenience method to get all rows as object array.
+
+
+## Contribution
+VS-Code Editor with c++ extension and prettier is recommended.
+
+The only relevant source files are:
+
+- tci.cpp - more or less direct TCI node api wrapper
+- transbase.js - Transbase Api Client (A bit more high level than just tci)
+
+## Build
+
+Prebuild binaries and tci-sdk download is not available yet.
+Therefore the path variable "TRANSBASE" must be set in order to build the addon with node-gyp!
+
+`export TRANSBASE=/path/to/transbase/installation`
+
+the simply run `npm install`
+
+## Test
+
+test directory contains some unit tests that can be execute with
+
+`npm run test`
+
+## Demo
+
+run.js contains a sample demo assuming a running transbase db "sample" at localhost:2024
+with an existing table "cashbook".
+
+execute:
+`node run` to run a query example executed from nodejs
+
+
+
