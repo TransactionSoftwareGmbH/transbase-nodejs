@@ -1,6 +1,6 @@
 {
   "name": "transbase",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "license": "MIT",
   "author": {
     "name": "Daniel Loibl",
@@ -12,7 +12,9 @@
     "type": "git",
     "url": "git@github.com:TransactionSoftwareGmbH/transbase-nodejs.git"
   },
-  "engines" : { "node" : ">=12" },
+  "engines": {
+    "node": ">=12"
+  },
   "gypfile": true,
   "binary": {
     "napi_versions": [
