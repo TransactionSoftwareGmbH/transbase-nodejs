@@ -1,0 +1,8 @@
+{
+  "name": "transbase-nodejs-sample",
+  "license": "MIT",
+  "main": "index.js",
+  "dependencies": {
+    "transbase": "latest"
+  }
+}
