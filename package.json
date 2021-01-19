@@ -2,6 +2,10 @@
   "name": "transbase",
   "version": "0.0.1",
   "license": "MIT",
+  "author": {
+    "name": "Daniel Loibl",
+    "email": "daniel.loibl@gmail.com"
+  },
   "description": "A node.js driver for transbase",
   "main": "transbase.js",
   "repository": {
