@@ -71,6 +71,54 @@ describe("Transbase.query", () => {
     });
   });
 
+  describe("parametrized queries", () => {
+    it("can pass positional (?) parameters as array", () => {
+      assert.equal(
+        client
+          .query("select nr from cashbook where nr >= ? and comment = ?", [
+            1,
+            "Drink",
+          ])
+          .toArray().length,
+        1
+      );
+    });
+
+    it("can pass named paramters as object", () => {
+      assert.equal(
+        client
+          .query(
+            "select nr from cashbook where nr >= :nr and comment = :comment",
+            {
+              nr: 1,
+              comment: "Drink",
+            }
+          )
+          .toArray().length,
+        1
+      );
+    });
+
+    it("can update parameters", () => {
+      assert.equal(
+        client
+          .query("select nr from cashbook where nr = :nr", {
+            nr: 1,
+          })
+          .next().nr,
+        1
+      );
+      assert.equal(
+        client
+          .query("select nr from cashbook where nr = :nr", {
+            nr: 2,
+          })
+          .next().nr,
+        2
+      );
+    });
+  });
+
   describe("insert/update/delete", () => {
     before(() => client.query("delete from cashbook where nr >= 9998"));
     it("returns number of added rows", () => {

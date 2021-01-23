@@ -67,10 +67,31 @@ class Transbase {
 
   /** execute a query directly. Returns a ResultSet if the query has data to select,
    * otherwise the number of affected records is returned (insert,update) */
-  query(sql = "") {
-    this.tci.executeDirect(sql);
-    if (this.tci.isSelect()) return new ResultSet(this.tci);
-    else return Attributes.getRecordsTouched(this.tci);
+  query(sql = "", parameters) {
+    if (!parameters) {
+      this.tci.executeDirect(sql);
+    } else {
+      this.tci.prepare(sql); // TODO: can we call prepare everytime?
+
+      if (Array.isArray(parameters)) {
+        parameters.forEach((value, index) => this.tci.setParam(index, value));
+      } else if (typeof parameters === "object") {
+        Object.entries(parameters).forEach(([name, value]) =>
+          this.tci.setParam(name, value)
+        );
+      } else {
+        throw Error(
+          "parametrized queries must either contain an array of positional parameters (?) or an key-value object of named parameters (:param) as second argument"
+        );
+      }
+      this.tci.execute();
+    }
+
+    if (this.tci.isSelect()) {
+      return new ResultSet(this.tci);
+    } else {
+      return Attributes.getRecordsTouched(this.tci);
+    }
   }
 
   /** close connection and free resources */

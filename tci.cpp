@@ -1,5 +1,6 @@
 #include <napi.h>
 #include "tci.h"
+#include <variant>
 
 /**
  * node-api tci wrapper
@@ -35,6 +36,9 @@ public:
 		auto tci = DefineClass(env, "TCI", {
 											   InstanceMethod<&TCI::connect>("connect"),
 											   InstanceMethod<&TCI::executeDirect>("executeDirect"),
+											   InstanceMethod<&TCI::prepare>("prepare"),
+											   InstanceMethod<&TCI::execute>("execute"),
+											   InstanceMethod<&TCI::setParam>("setParam"),
 											   InstanceMethod<&TCI::fetch>("fetch"),
 											   InstanceMethod<&TCI::getState>("getState"),
 											   InstanceMethod<&TCI::getResultSetAttribute>("getResultSetAttribute"),
@@ -82,6 +86,75 @@ public:
 	{
 		std::string query = info[0].As<Napi::String>().Utf8Value();
 		tci(TCIExecuteDirect(resultSet, &query[0], 1, 0));
+	}
+
+	void prepare(const Napi::CallbackInfo &info)
+	{
+		auto query = info[0].As<Napi::String>().Utf8Value();
+		tci(TCIPrepareA(statement, &query[0]));
+	}
+
+	void execute(const Napi::CallbackInfo &info)
+	{
+		tci(TCIExecuteA(resultSet, 1, 0));
+	}
+
+	void setParam(const Napi::CallbackInfo &info)
+	{
+		setData(info[0], info[1]);
+	}
+
+	void setData(Napi::Value nameOrPosition, Napi::Value value)
+	{
+		auto typeAndValue = getTciTypeAndValue(value);
+		auto type = typeAndValue.first;
+		auto data = typeAndValue.second;
+		auto size = sizeof(data);
+		if (nameOrPosition.IsNumber())
+		{
+			auto position = nameOrPosition.As<Napi::Number>().Uint32Value() + 1;
+			if (type == TCI_C_CHAR) // TODO: string handling get<std::string> require libcpp
+				tci(TCISetData(resultSet, position, value.ToString().Utf8Value().data(), size, type, NULL));
+			else
+				tci(TCISetData(resultSet, position, &data, size, type, NULL));
+		}
+		else
+		{
+			auto name = nameOrPosition.As<Napi::String>().Utf8Value();
+			if (type == TCI_C_CHAR)
+				tci(TCISetDataByName(resultSet, &name[0], value.ToString().Utf8Value().data(), size, type, NULL));
+			else
+				tci(TCISetDataByName(resultSet, &name[0], &data, size, type, NULL));
+		}
+	}
+
+	std::pair<Int2, std::variant<bool, int, long long, double, std::string>> getTciTypeAndValue(Napi::Value value)
+	{
+		if (value.IsBoolean())
+		{
+			return std::pair(TCI_C_INT1, value.As<Napi::Boolean>().Value());
+		}
+		else if (value.IsNumber())
+		{
+			auto number = value.As<Napi::Number>();
+			if (number.IsBigInt())
+			{
+				return std::pair(TCI_C_INT8, value.As<Napi::Number>().Int64Value());
+			}
+			else if (isNapiValueInteger(env, number))
+			{
+				return std::pair(TCI_C_INT4, value.As<Napi::Number>().Int32Value());
+			}
+			else
+			{
+				return std::pair(TCI_C_DOUBLE, value.As<Napi::Number>().DoubleValue());
+			}
+		}
+		else
+		{
+			auto data = value.ToString().Utf8Value();
+			return std::pair(TCI_C_CHAR, data);
+		}
 	}
 
 	Napi::Value isSelect(const Napi::CallbackInfo &info)
@@ -246,6 +319,18 @@ public:
 			printf("TCIError %d: %s\n SQLCode: %s\n", errorCode, errorMessage, sqlcode);
 			throw Napi::Error::New(env, errorMessage);
 		}
+	}
+
+	static bool isNapiValueInteger(Napi::Env &env, Napi::Value &num)
+	{
+		return env.Global()
+			.Get("Number")
+			.ToObject()
+			.Get("isInteger")
+			.As<Napi::Function>()
+			.Call({num})
+			.ToBoolean()
+			.Value();
 	}
 };
 

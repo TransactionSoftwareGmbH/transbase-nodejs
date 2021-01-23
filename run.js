@@ -6,13 +6,15 @@ const transbase = new Transbase({
   password: "",
 });
 
-console.log(transbase.query("select * from cashbook").toArray());
+console.log("select * from cashbook");
 
 // console.log(transbase.query("select count(*) from cashbook"));
 
-//console.log(transbase.query("select * from cashbook"));
-
 // console.log(transbase.query("select nr, amount from cashbook where amount < 0"));
+
+// console.log(transbase.query("select * from cashbook where nr >= :nr and comment like :startsWith", { nr: 1, startsWith: "Lu%" }));
+
+// console.log(transbase.query("select * from cashbook where nr >= ? and comment like ?", [1, "Lu%",]));
 
 // console.log(transbase.query("insert into cashbook values (42, default, 100, 'Inserted')"));
 

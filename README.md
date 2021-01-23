@@ -29,18 +29,26 @@ transbase.query("select * from cashbook").toArray(); //all rows as object array
 
 transbase.close();
 ```
-insert update and deletes are execute but the number of affected rows is returned instead:
+
+insert, update and delete are executed similar but the number of affected rows is returned instead:
 ```js
 transbase.query("insert into cashbook values (42, default, 100, 'INSERT');") // = 1
 ```
 
-
+Query parameters can be passed as second argument
+```js
+// pass parameters as object matching named parameters
+transbase.query("select * from cashbook where nr >= :nr and comment like :startsWith", { nr: 1, startsWith: "Lu%" }); // object 
+// or as an array for positional parameters
+transbase.query("select * from cashbook where nr >= ? and comment like ?", [1, "Lu%",]);
+```
 ## Api Reference
 
 #### `class Transbase(options:{url:string,user:string,password:string})`
 Creates a new Transbase Client, connects and login to the database given by the url authenticated by the given user and password. Don't forget to invoke [`close`](#close) when your done.
-#### `query(statement:string): ResultSet|number`
-executes the given statement directly. In case of a "select" statement a  [ResultSet](#ResultSet) object is returned, otherwise the number of affected rows.
+#### `query(statement:string, parameters?: array|object): ResultSet|number`
+executes the given statement. In case of a "select" statement a  [ResultSet](#ResultSet) object is returned, otherwise the number of affected rows. Query parameters are passed as second argument as object `{[param]:value}` in case of named paramters *:param* or 
+as an value array in case of positional paramters *?*.
 #### <a id="#close"></a>`close(): void`
 closes the transbase clients and clean up allocated resources
 
