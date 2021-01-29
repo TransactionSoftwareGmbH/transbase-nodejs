@@ -12,6 +12,7 @@
     "type": "git",
     "url": "git@github.com:TransactionSoftwareGmbH/transbase-nodejs.git"
   },
+  "transbaseVersion": "8.4.1",
   "engines": {
     "node": ">=12"
   },
@@ -30,7 +31,8 @@
     "package.json"
   ],
   "scripts": {
-    "install": "prebuild-install --runtime napi || node-gyp rebuild",
+    "install": "prebuild-install --runtime napi || npm run rebuild",
+    "prerebuild": "node scripts/prerebuild.js",
     "rebuild": "node-gyp rebuild",
     "prebuild": "prebuild --runtime napi --all --verbose --include-regex \".(node|lib)$\"",
     "prebuild:publish": "prebuild --runtime napi --include-regex \".(node|lib)$\" --upload ${GITHUB_TOKEN}",
