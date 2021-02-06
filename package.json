@@ -14,7 +14,7 @@
   },
   "transbaseVersion": "8.4.1",
   "engines": {
-    "node": ">=12"
+    "node": ">=14"
   },
   "gypfile": true,
   "binary": {
@@ -46,7 +46,7 @@
   },
   "devDependencies": {
     "mocha": "^8.2.1",
-    "prebuild": "^10.0.1",
-    "np": "^7.2.0"
+    "np": "^7.2.0",
+    "prebuild": "^10.0.1"
   }
 }
