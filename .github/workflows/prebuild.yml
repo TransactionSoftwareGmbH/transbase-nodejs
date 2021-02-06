@@ -1,0 +1,20 @@
+name: Prebuild Binaries
+
+on:
+  push:
+    branches: [ master ]
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+      - uses: actions/checkout@v2
+        with:
+          ref: dev/donwload-sdk
+      - run: npm install
+      - run: npm run rebuild        
