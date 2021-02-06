@@ -10,7 +10,7 @@
               "OS==\"mac\"",
               {
                 "files": [
-                  ".transbase/tci_sdk/lib/libtci.dylib"
+                  "$(TCI)/lib/libtci.dylib"
                 ]
               }
             ],
@@ -18,7 +18,7 @@
               "OS==\"linux\"",
               {
                 "files": [
-                  ".transbase/tci_sdk/lib/libtci.so"
+                  "$(TCI)/lib/libtci.so"
                 ]
               }
             ],
@@ -26,7 +26,7 @@
               "OS==\"win\"",
               {
                 "files": [
-                  ".transbase/tci_sdk/lib/tci.dll"
+                  "$(TCI)/lib/tci.dll"
                 ]
               }
             ]
@@ -51,10 +51,10 @@
       ],
       "include_dirs": [
         "<!@(node -p \"require('node-addon-api').include\")",
-        ".transbase/tci_sdk/include"
+        "$(TCI)/include"
       ],
       "library_dirs": [
-        ".transbase/tci_sdk/lib"
+        "$(TCI)/lib"
       ],
       "libraries": [
         "-ltci"

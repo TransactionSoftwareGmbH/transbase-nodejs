@@ -32,10 +32,10 @@
   ],
   "scripts": {
     "install": "prebuild-install --runtime napi || npm run rebuild",
-    "prerebuild": "node scripts/prerebuild.js",
-    "rebuild": "node-gyp rebuild",
-    "prebuild": "prebuild --runtime napi --all --verbose --include-regex \".(node|lib)$\"",
-    "prebuild:publish": "prebuild --runtime napi --include-regex \".(node|lib)$\" --upload ${GITHUB_TOKEN}",
+    "prerebuild": "cross-env TCI=${PWD}/.transbase node scripts/download",
+    "rebuild": "cross-env TCI=${PWD}/.transbase node-gyp rebuild",
+    "prebuild": "cross-env-shell TCI=${PWD}/.transbase prebuild --runtime napi --all --verbose --include-regex \\\".(node|lib|so|dll)$\\\"",
+    "prebuild:publish": "npm run prebuild --upload=${GITHUB_TOKEN}",
     "release": "np",
     "test": "mocha test/*.test.js --timeout 5000"
   },
@@ -45,6 +45,7 @@
     "prebuild-install": "^6.0.0"
   },
   "devDependencies": {
+    "cross-env": "^7.0.3",
     "mocha": "^8.2.1",
     "np": "^7.2.0",
     "prebuild": "^10.0.1"
