@@ -28,7 +28,9 @@
     "transbase.js",
     "README.md",
     "LICENSE.md",
-    "package.json"
+    "package.json",
+    "example/package.json",
+    "example/index.js"
   ],
   "scripts": {
     "install": "prebuild-install --runtime napi || npm run rebuild",

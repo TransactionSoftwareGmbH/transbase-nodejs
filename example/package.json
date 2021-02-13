@@ -1,5 +1,5 @@
 {
-  "name": "transbase-nodejs-sample",
+  "name": "transbase-nodejs-example",
   "license": "MIT",
   "main": "index.js",
   "dependencies": {
