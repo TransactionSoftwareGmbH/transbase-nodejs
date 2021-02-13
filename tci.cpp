@@ -281,10 +281,15 @@ public:
 
 	Napi::Value getStringValue(Columnnumber &colNumber)
 	{
-		int charLength;
-		int byteSize;
+		Int4 charLength;
+		Int4 byteSize;
 		tci(TCIGetDataSize(resultSet, colNumber, TCI_C_CHAR, &byteSize, &isNull));
 		tci(TCIGetDataCharLength(resultSet, colNumber, &charLength, &isNull));
+
+		if (isNull)
+			return env.Null();
+		if (byteSize == 0 || charLength == 0)
+			return Napi::String::New(env, "");
 
 		std::string str(charLength, ' ');
 		tci(TCIGetData(resultSet, colNumber, str.data(), byteSize + 1, NULL, TCI_C_CHAR, &isNull));
