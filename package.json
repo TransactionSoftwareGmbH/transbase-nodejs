@@ -37,8 +37,7 @@
     "prerebuild": "cross-env TCI=${PWD}/.transbase node scripts/download",
     "rebuild": "cross-env TCI=${PWD}/.transbase node-gyp rebuild",
     "prebuild": "cross-env TCI=${PWD}/.transbase prebuild --runtime napi --all --include-regex \".(node|lib|so|dll)$\"",
-    "prebuild:publish": "npm run prebuild --upload=${GITHUB_TOKEN}",
-    "release": "np",
+    "prebuild:publish": "cross-env TCI=${PWD}/.transbase prebuild --runtime napi --all --include-regex \".(node|lib|so|dll)$\" --upload=${{secrets.GITHUBTOKEN}}",
     "test": "mocha test/*.test.js --timeout 5000"
   },
   "dependencies": {
@@ -49,7 +48,6 @@
   "devDependencies": {
     "cross-env": "^7.0.3",
     "mocha": "^8.2.1",
-    "np": "^7.2.0",
     "prebuild": "^10.0.1"
   }
 }
