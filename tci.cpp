@@ -128,7 +128,7 @@ public:
 		}
 	}
 
-	std::pair<Int2, std::variant<bool, int, long long, double, std::string>> getTciTypeAndValue(Napi::Value value)
+	std::pair<Int2, std::variant<bool, int32_t, int64_t, double, std::string>> getTciTypeAndValue(Napi::Value value)
 	{
 		if (value.IsBoolean())
 		{

@@ -34,7 +34,7 @@
     "install": "prebuild-install --runtime napi || npm run rebuild",
     "prerebuild": "cross-env TCI=${PWD}/.transbase node scripts/download",
     "rebuild": "cross-env TCI=${PWD}/.transbase node-gyp rebuild",
-    "prebuild": "cross-env-shell TCI=${PWD}/.transbase prebuild --runtime napi --all --verbose --include-regex \\\".(node|lib|so|dll)$\\\"",
+    "prebuild": "cross-env-shell TCI=${PWD}/.transbase prebuild --runtime napi --all --include-regex \\\".(node|lib|so|dll)$\\\"",
     "prebuild:publish": "npm run prebuild --upload=${GITHUB_TOKEN}",
     "release": "np",
     "test": "mocha test/*.test.js --timeout 5000"
