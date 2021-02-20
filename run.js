@@ -6,7 +6,7 @@ const transbase = new Transbase({
   password: "",
 });
 
-console.log("select * from cashbook");
+console.log(transbase.query("select * from cashbook"));
 
 // console.log(transbase.query("select count(*) from cashbook"));
 

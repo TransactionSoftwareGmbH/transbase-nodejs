@@ -3,6 +3,6 @@
   "license": "MIT",
   "main": "index.js",
   "dependencies": {
-    "transbase": "latest"
+    "@transaction/transbase-nodejs": "latest"
   }
 }

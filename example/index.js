@@ -1,4 +1,4 @@
-const { Transbase } = require("transbase");
+const { Transbase } = require("@transaction/transbase-nodejs");
 
 const transbase = new Transbase({
   url: "//localhost:2024/sample",
