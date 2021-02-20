@@ -30,8 +30,10 @@
     "LICENSE.md",
     "package.json",
     "example/package.json",
-    "example/index.js"
+    "example/index.js",
+    "transbase.d.ts"
   ],
+  "types": "./transbase.d.ts",
   "scripts": {
     "install": "prebuild-install --runtime napi || npm run rebuild",
     "prerebuild": "cross-env TCI=${PWD}/.transbase node scripts/download",
