@@ -44,7 +44,7 @@ public:
 											   InstanceMethod<&TCI::getResultSetAttribute>("getResultSetAttribute"),
 											   InstanceMethod<&TCI::getResultSetStringAttribute>("getResultSetStringAttribute"),
 											   InstanceMethod<&TCI::getValue>("getValue"),
-											   InstanceMethod<&TCI::isSelect>("isSelect"),
+											   InstanceMethod<&TCI::getQueryType>("getQueryType"),
 											   InstanceMethod<&TCI::close>("close"),
 										   });
 		exports.Set("TCI", tci);
@@ -157,10 +157,16 @@ public:
 		}
 	}
 
-	Napi::Value isSelect(const Napi::CallbackInfo &info)
+	Napi::Value getQueryType(const Napi::CallbackInfo &info)
 	{
 		auto queryType = getResultSetAttribute(TCI_ATTR_QUERY_TYPE);
-		return Napi::Boolean::New(env, is_select(queryType));
+		if (sel_class(queryType))
+			return Napi::String::New(env, "SELECT");
+		if (upd_class(queryType))
+			return Napi::String::New(env, "UPDATE");
+		if (ddl_class(queryType))
+			return Napi::String::New(env, "SCHEMA");
+		return Napi::Number::New(env, queryType);
 	}
 
 	Napi::Value getResultSetAttribute(const Napi::CallbackInfo &info)

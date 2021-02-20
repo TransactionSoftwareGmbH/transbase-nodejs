@@ -1,20 +1,40 @@
 const assert = require("assert").strict;
 const { Transbase } = require("../transbase");
-
+const config = require("./config");
 describe("Transbase.query", () => {
   let client;
 
   before(() => {
-    client = new Transbase({
-      url: "//localhost:2024/sample",
-      user: "tbadmin",
-      password: "",
-    });
+    client = new Transbase(config);
+    try {
+      client.query(`DROP TABLE cashbook;`);
+    } catch (ignore) {}
+    const insert = (values) => `insert into cashbook ${values}`;
+    client.query(`create table cashbook
+      (
+        nr 	integer not null primary key auto_increment,
+        date 	timestamp not null default currentdate,
+        amount 	numeric(10,2) not null,
+        comment varchar(*)
+      );`);
+    client.query(insert`values (default, default, 100, 'Withdrawal')`);
+    client.query(insert`values (default, currentdate, -9.50, 'Lunch🚀')`);
+    client.query(insert`(amount, comment) values (-5.5, 'Drink');`);
+    client.query(insert`values (default, '2021-02-20', 0, '');`);
+    client.query(insert`(amount, comment) values (-2.5, null);`);
   });
+
+  after(() => {
+    try {
+      client.query("DELETE FROM cashbook;");
+    } finally {
+      client.close();
+    }
+  });
+
   describe("select", () => {
     it("select *", () => {
       const result = client.query("select * from cashbook").toArray();
-      //console.log(result);
       assert.ok(result.length);
       assert.deepEqual(result[0], {
         nr: 1,
@@ -26,7 +46,6 @@ describe("Transbase.query", () => {
 
     it("select aggregations", () => {
       const result = client.query("select count(*) from cashbook").toArray();
-      //console.log(result);
       assert.ok(result);
     });
 
@@ -34,7 +53,6 @@ describe("Transbase.query", () => {
       const result = client
         .query("select nr, amount from cashbook where amount >= 0")
         .toArray();
-      //console.log(result);
       assert.ok(result.length);
     });
 
@@ -42,7 +60,6 @@ describe("Transbase.query", () => {
       const result = client
         .query("select comment from cashbook where comment is null")
         .toArray();
-      //console.log(result);
       assert.equal(result[0].comment, null);
     });
   });
@@ -143,9 +160,5 @@ describe("Transbase.query", () => {
     it("returns number of deleted rows", () => {
       assert.equal(client.query("delete from cashbook where nr >= 9998"), 2);
     });
-  });
-
-  after(() => {
-    client.close();
   });
 });

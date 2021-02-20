@@ -59,15 +59,22 @@ class ResultSet {
  * transbase.close();
  *********************************/
 class Transbase {
-  /** {url,user,password} */
+  /**
+   * create a new transbase database client
+   * @param config defining the database url connecting to, logging in with the given user and password
+   **/
   constructor(config) {
     this.tci = new TCI();
     this.tci.connect(config);
   }
 
-  /** execute a query directly. Returns a ResultSet if the query has data to select,
-   * otherwise the number of affected records is returned (insert,update) */
-  query(sql = "", parameters) {
+  /**
+   * execute a query directly in auto-commit mode
+   * @param sql the sql query to execute
+   * @param params optional query paramters as an array of positional parameters or a key-value object for named parameters
+   * @returns a ResetSet if the query has data to select or the number of affected records for insert,update statements
+   **/
+  query(sql, parameters) {
     if (!parameters) {
       this.tci.executeDirect(sql);
     } else {
@@ -87,10 +94,13 @@ class Transbase {
       this.tci.execute();
     }
 
-    if (this.tci.isSelect()) {
-      return new ResultSet(this.tci);
-    } else {
-      return Attributes.getRecordsTouched(this.tci);
+    switch (this.tci.getQueryType()) {
+      case "UPDATE":
+        return Attributes.getRecordsTouched(this.tci);
+      case "SELECT":
+        return new ResultSet(this.tci);
+      case "SCHEMA":
+        return;
     }
   }
 
