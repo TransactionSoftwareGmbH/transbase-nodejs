@@ -16,8 +16,8 @@ jobs:
         with:
           ref: develop
       - run: npm ci --ignore-scripts
-      - run: npm run install
-      - run: npm test -- --url=${{secrets.DB_URL}} --user=${{secrets.DB_USER}} --password=${{secrets.DB_PWD}}
+      - run: npm run rebuild
+      #- run: npm test -- --url=${{secrets.DB_URL}} --user=${{secrets.DB_USER}} --password=${{secrets.DB_PWD}}
   Windows:
     runs-on: windows-latest
     steps:
@@ -28,8 +28,8 @@ jobs:
         with:
           ref: develop
       - run: npm ci --ignore-scripts
-      - run: npm run install
-      - run: npm test -- --url=${{secrets.DB_URL}} --user=${{secrets.DB_USER}} --password=${{secrets.DB_PWD}}
+      - run: npm run rebuild
+      #- run: npm test -- --url=${{secrets.DB_URL}} --user=${{secrets.DB_USER}} --password=${{secrets.DB_PWD}}
   Linux:
     runs-on: ubuntu-latest
     steps:
@@ -40,5 +40,5 @@ jobs:
         with:
           ref: develop
       - run: npm ci --ignore-scripts
-      - run: npm run install
+      - run: npm run rebuild
       - run: npm test -- --url=${{secrets.DB_URL}} --user=${{secrets.DB_USER}} --password=${{secrets.DB_PWD}}

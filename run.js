@@ -1,10 +1,13 @@
 const { Transbase } = require("./transbase");
+const config = requore("./test/config");
 
-const transbase = new Transbase({
-  url: "//localhost:2024/sample",
-  user: "tbadmin",
-  password: "",
-});
+const transbase = new Transbase(
+  config || {
+    url: "//localhost:2024/sample",
+    user: "tbadmin",
+    password: "",
+  }
+);
 
 console.log(transbase.query("select * from cashbook"));
 
