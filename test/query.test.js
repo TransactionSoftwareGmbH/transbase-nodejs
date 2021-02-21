@@ -1,16 +1,16 @@
 const assert = require("assert").strict;
 const { Transbase } = require("../transbase");
 const config = require("./config");
+
 describe("Transbase.query", () => {
+  const UID = String(Math.random()).substring(2, 12);
   let client;
 
+  const TABLE = `cashbook_${UID}`;
   before(() => {
     client = new Transbase(config);
-    try {
-      client.query(`DROP TABLE cashbook;`);
-    } catch (ignore) {}
-    const insert = (values) => `insert into cashbook ${values}`;
-    client.query(`create table cashbook
+    const insert = (values) => `insert into ${TABLE} ${values}`;
+    client.query(`create table ${TABLE}
       (
         nr 	integer not null primary key auto_increment,
         date 	timestamp not null default currentdate,
@@ -26,7 +26,7 @@ describe("Transbase.query", () => {
 
   after(() => {
     try {
-      client.query("DELETE FROM cashbook;");
+      client.query(`DROP TABLE ${TABLE};`);
     } finally {
       client.close();
     }
@@ -34,7 +34,7 @@ describe("Transbase.query", () => {
 
   describe("select", () => {
     it("select *", () => {
-      const result = client.query("select * from cashbook").toArray();
+      const result = client.query(`select * from ${TABLE}`).toArray();
       assert.ok(result.length);
       assert.deepEqual(result[0], {
         nr: 1,
@@ -45,20 +45,20 @@ describe("Transbase.query", () => {
     });
 
     it("select aggregations", () => {
-      const result = client.query("select count(*) from cashbook").toArray();
+      const result = client.query(`select count(*) from ${TABLE}`).toArray();
       assert.ok(result);
     });
 
     it("select columns", () => {
       const result = client
-        .query("select nr, amount from cashbook where amount >= 0")
+        .query(`select nr, amount from ${TABLE} where amount >= 0`)
         .toArray();
       assert.ok(result.length);
     });
 
     it("handles NULL columns", () => {
       const result = client
-        .query("select comment from cashbook where comment is null")
+        .query(`select comment from ${TABLE} where comment is null`)
         .toArray();
       assert.equal(result[0].comment, null);
     });
@@ -66,13 +66,13 @@ describe("Transbase.query", () => {
 
   describe("ResultSet", () => {
     it("can fetch rows one by one", () => {
-      const rs = client.query("select * from cashbook");
+      const rs = client.query(`select * from ${TABLE}`);
       assert.equal(rs.next().nr, 1);
       assert.equal(rs.next().nr, 2);
     });
 
     it("can fetch all", () => {
-      const rs = client.query("select * from cashbook where nr <= 3");
+      const rs = client.query(`select * from ${TABLE} where nr <= 3`);
       let rows = 0;
       while (rs.hasNext()) {
         if (rs.next()) {
@@ -83,7 +83,7 @@ describe("Transbase.query", () => {
     });
 
     it("can fetch all with toArray convenience", () => {
-      const rs = client.query("select * from cashbook where nr <= 3");
+      const rs = client.query(`select * from ${TABLE} where nr <= 3`);
       assert.equal(rs.toArray().length, 3);
     });
   });
@@ -92,7 +92,7 @@ describe("Transbase.query", () => {
     it("can pass positional (?) parameters as array", () => {
       assert.equal(
         client
-          .query("select nr from cashbook where nr >= ? and comment = ?", [
+          .query(`select nr from ${TABLE} where nr >= ? and comment = ?`, [
             1,
             "Drink",
           ])
@@ -105,7 +105,7 @@ describe("Transbase.query", () => {
       assert.equal(
         client
           .query(
-            "select nr from cashbook where nr >= :nr and comment = :comment",
+            `select nr from ${TABLE} where nr >= :nr and comment = :comment`,
             {
               nr: 1,
               comment: "Drink",
@@ -119,7 +119,7 @@ describe("Transbase.query", () => {
     it("can update parameters", () => {
       assert.equal(
         client
-          .query("select nr from cashbook where nr = :nr", {
+          .query(`select nr from ${TABLE} where nr = :nr`, {
             nr: 1,
           })
           .next().nr,
@@ -127,7 +127,7 @@ describe("Transbase.query", () => {
       );
       assert.equal(
         client
-          .query("select nr from cashbook where nr = :nr", {
+          .query(`select nr from ${TABLE} where nr = :nr`, {
             nr: 2,
           })
           .next().nr,
@@ -136,29 +136,29 @@ describe("Transbase.query", () => {
     });
   });
 
-  describe("insert/update/delete", () => {
-    before(() => client.query("delete from cashbook where nr >= 9998"));
+  describe(`insert/update/delete`, () => {
+    before(() => client.query(`delete from ${TABLE} where nr >= 9998`));
     it("returns number of added rows", () => {
       assert.equal(
         client.query(
-          "insert into cashbook values (9998, default, 100, 'INSERTED');"
+          `insert into ${TABLE} values (9998, default, 100, 'INSERTED');`
         ),
         1
       );
       client.query(
-        "insert into cashbook values (9999, default, 100, 'INSERTED2')"
+        `insert into ${TABLE} values (9999, default, 100, 'INSERTED2')`
       );
     });
 
     it("returns number of updated rows", () => {
       assert.equal(
-        client.query("update cashbook set amount = 0 where nr >= 9998"),
+        client.query(`update ${TABLE} set amount = 0 where nr >= 9998`),
         2
       );
     });
 
     it("returns number of deleted rows", () => {
-      assert.equal(client.query("delete from cashbook where nr >= 9998"), 2);
+      assert.equal(client.query(`delete from ${TABLE} where nr >= 9998`), 2);
     });
   });
 });
