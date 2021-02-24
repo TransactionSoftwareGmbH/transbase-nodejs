@@ -1,6 +1,6 @@
 {
   "name": "@transaction/transbase-nodejs",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "license": "MIT",
   "author": {
     "name": "Daniel Loibl",
@@ -39,7 +39,6 @@
     "prerebuild": "cross-env TCI=${PWD}/.transbase node scripts/download",
     "rebuild": "cross-env TCI=${PWD}/.transbase node-gyp rebuild",
     "prebuild": "cross-env TCI=${PWD}/.transbase prebuild --runtime napi --all --include-regex \".(node|lib|so|dll)$\"",
-    "prebuild:publish": "cross-env TCI=${PWD}/.transbase prebuild --runtime napi --all --include-regex \".(node|lib|so|dll)$\" --upload=${{secrets.GITHUBTOKEN}}",
     "test": "mocha test/*.test.js --timeout 5000"
   },
   "dependencies": {

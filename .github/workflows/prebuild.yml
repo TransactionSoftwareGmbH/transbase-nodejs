@@ -18,7 +18,7 @@ jobs:
           ref: master
       - run: npm ci --ignore-scripts
       - run: npm run prerebuild
-      - run: npm run prebuild:publish
+      - run: npx cross-env TCI=${PWD}/.transbase prebuild --runtime napi --all --include-regex ".(node|lib|so|dll)$" --upload ${{secrets.git_hub_token}}
   Windows:
     runs-on: windows-latest
     steps:
@@ -30,7 +30,7 @@ jobs:
           ref: master
       - run: npm ci --ignore-scripts
       - run: npm run prerebuild
-      - run: npm run prebuild:publish
+      - run: npx cross-env TCI=${PWD}/.transbase prebuild --runtime napi --all --include-regex ".(node|lib|so|dll)$" --upload ${{secrets.git_hub_token}}
   Linux:
     runs-on: ubuntu-latest
     steps:
@@ -42,4 +42,5 @@ jobs:
           ref: master
       - run: npm ci --ignore-scripts
       - run: npm run prerebuild
-      - run: npm run prebuild:publish
+      - run: npx cross-env TCI=${PWD}/.transbase prebuild --runtime napi --all --include-regex ".(node|lib|so|dll)$" --upload ${{secrets.git_hub_token}}
+
