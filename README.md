@@ -1,5 +1,10 @@
 # Transbase NodeJS Driver
 
+<p align="center">
+    <a href="https://badge.fury.io/js/%40transaction%2Ftransbase-nodejs"><img src="https://badge.fury.io/js/%40transaction%2Ftransbase-nodejs.svg" alt="npm version" height="18"></a>
+    <a href="https://github.com/TransactionSoftwareGmbH/transbase-nodejs/actions/workflows/test.yml"><img src="https://github.com/TransactionSoftwareGmbH/transbase-nodejs/actions/workflows/test.yml/badge.svg " alt="npm version" height="18"></a>
+</p>
+
 This is a nodejs [transbase](https://www.transaction.de/loesungen/transbase-ressourcenoptimierte-hochleistungsdatenbank) client based on tci.
 
 ## Install
@@ -12,12 +17,13 @@ or if you are using yarn
 yarn add @transaction/transbase-nodejs
 ```
 
-> If prebuild binaries are not available for you system, you need to install [node-gyp](https://github.com/nodejs/node-gyp/blob/master/README.md) first to make sure that native adddon can be build on your system.
-
+> If prebuild binaries are not available for you system you need to install [node-gyp](https://github.com/nodejs/node-gyp/blob/master/README.md) first to make sure that the native adddon can be build on your system.
 ## Example 
 
 ```js
 const { Transbase } = require("@transaction/transbase-nodejs");
+// Typescript
+// import {Transbase} from "@transaction/transbase-nodejs"
 
 const transbase = new Transbase({
   url: "//localhost:2024/sample",
@@ -64,8 +70,8 @@ VS-Code Editor with c++ extension and prettier is recommended.
 
 The only relevant source files are:
 
-- tci.cpp - more or less direct TCI node api wrapper
-- transbase.js - Transbase Api Client (A bit more high level than just tci)
+- tci.cpp - TCI node api wrapper
+- transbase.js - Transbase Api Client (more high level than just tci)
 
 ## Build
 
@@ -74,8 +80,8 @@ run `npm run rebuild` which will also download the required tci sdk.
 
 test directory contains some unit tests that can be execute with
 `npm test`
-wich uses the url //localhost:2024/sample (tbadmin,"") be default.
-You can pass another connection with 
+wich uses the url `//localhost:2024/sample` (user=tbadmin,password="") by default.
+You can pass another connection with command line arguments:
 ```
 npm test -- --url=<db_url> --user=<user> --password=<password>
 ```
@@ -86,5 +92,5 @@ run.js contains a sample demo assuming a running transbase db "sample" at localh
 execute:
 `node run` to run a query example executed from nodejs
 
-you can pass different connect parameters via command line arguments (url,user,password)
+you can pass different connect parameters via command line arguments (url,user,password) similar to npm test.
 
