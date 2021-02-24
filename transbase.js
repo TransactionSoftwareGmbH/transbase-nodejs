@@ -59,18 +59,49 @@ class ResultSet {
  * transbase.close();
  *********************************/
 class Transbase {
-  /** {url,user,password} */
+  /**
+   * create a new transbase database client
+   * @param config defining the database url connecting to, logging in with the given user and password
+   **/
   constructor(config) {
     this.tci = new TCI();
     this.tci.connect(config);
   }
 
-  /** execute a query directly. Returns a ResultSet if the query has data to select,
-   * otherwise the number of affected records is returned (insert,update) */
-  query(sql = "") {
-    this.tci.executeDirect(sql);
-    if (this.tci.isSelect()) return new ResultSet(this.tci);
-    else return Attributes.getRecordsTouched(this.tci);
+  /**
+   * execute a query directly in auto-commit mode
+   * @param sql the sql query to execute
+   * @param params optional query paramters as an array of positional parameters or a key-value object for named parameters
+   * @returns a ResetSet if the query has data to select or the number of affected records for insert,update statements
+   **/
+  query(sql, parameters) {
+    if (!parameters) {
+      this.tci.executeDirect(sql);
+    } else {
+      this.tci.prepare(sql); // TODO: can we call prepare everytime?
+
+      if (Array.isArray(parameters)) {
+        parameters.forEach((value, index) => this.tci.setParam(index, value));
+      } else if (typeof parameters === "object") {
+        Object.entries(parameters).forEach(([name, value]) =>
+          this.tci.setParam(name, value)
+        );
+      } else {
+        throw Error(
+          "parametrized queries must either contain an array of positional parameters (?) or an key-value object of named parameters (:param) as second argument"
+        );
+      }
+      this.tci.execute();
+    }
+
+    switch (this.tci.getQueryType()) {
+      case "UPDATE":
+        return Attributes.getRecordsTouched(this.tci);
+      case "SELECT":
+        return new ResultSet(this.tci);
+      case "SCHEMA":
+        return;
+    }
   }
 
   /** close connection and free resources */

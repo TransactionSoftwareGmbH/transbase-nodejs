@@ -1,5 +1,5 @@
 {
-  "name": "transbase",
+  "name": "@transaction/transbase-nodejs",
   "version": "0.0.2",
   "license": "MIT",
   "author": {
@@ -12,8 +12,9 @@
     "type": "git",
     "url": "git@github.com:TransactionSoftwareGmbH/transbase-nodejs.git"
   },
+  "transbaseVersion": "8.4.1",
   "engines": {
-    "node": ">=12"
+    "node": ">=14"
   },
   "gypfile": true,
   "binary": {
@@ -27,14 +28,18 @@
     "transbase.js",
     "README.md",
     "LICENSE.md",
-    "package.json"
+    "package.json",
+    "example/package.json",
+    "example/index.js",
+    "transbase.d.ts"
   ],
+  "types": "./transbase.d.ts",
   "scripts": {
-    "install": "prebuild-install --runtime napi || node-gyp rebuild",
-    "rebuild": "node-gyp rebuild",
-    "prebuild": "prebuild --runtime napi --all --verbose --include-regex \".(node|lib)$\"",
-    "prebuild:publish": "prebuild --runtime napi --include-regex \".(node|lib)$\" --upload ${GITHUB_TOKEN}",
-    "release": "np",
+    "install": "prebuild-install --runtime napi || npm run rebuild",
+    "prerebuild": "cross-env TCI=${PWD}/.transbase node scripts/download",
+    "rebuild": "cross-env TCI=${PWD}/.transbase node-gyp rebuild",
+    "prebuild": "cross-env TCI=${PWD}/.transbase prebuild --runtime napi --all --include-regex \".(node|lib|so|dll)$\"",
+    "prebuild:publish": "cross-env TCI=${PWD}/.transbase prebuild --runtime napi --all --include-regex \".(node|lib|so|dll)$\" --upload=${{secrets.GITHUBTOKEN}}",
     "test": "mocha test/*.test.js --timeout 5000"
   },
   "dependencies": {
@@ -43,8 +48,8 @@
     "prebuild-install": "^6.0.0"
   },
   "devDependencies": {
+    "cross-env": "^7.0.3",
     "mocha": "^8.2.1",
-    "prebuild": "^10.0.1",
-    "np": "^7.2.0"
+    "prebuild": "^10.0.1"
   }
 }

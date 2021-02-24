@@ -1,0 +1,8 @@
+{
+  "name": "transbase-nodejs-example",
+  "license": "MIT",
+  "main": "index.js",
+  "dependencies": {
+    "@transaction/transbase-nodejs": "latest"
+  }
+}

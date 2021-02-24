@@ -1,7 +1,8 @@
 const assert = require("assert").strict;
 const { Transbase } = require("../transbase");
+const config = require("./config");
 
-describe("connect", () => {
+describe("Transbase Client", () => {
   it("config object is required", () => {
     assert.throws(() => new Transbase(), /connect is missing config argument/);
   });
@@ -55,47 +56,32 @@ describe("connect", () => {
 
   it("db does not exist", () => {
     assert.throws(
-      () =>
-        new Transbase({
-          url: "//localhost:2024/what",
-          user: "tbadmin",
-          password: "",
-        }),
-      /database <what> does not exist/
+      () => new Transbase({ ...config, url: config.url + "bla" }),
+      /database <(.*)bla> does not exist/
     );
   });
 
   it("wrong user", () => {
     assert.throws(
-      () =>
-        new Transbase({
-          url: "//localhost:2024/sample",
-          user: "sneaky",
-          password: "",
-        }),
+      () => new Transbase({ ...config, user: config.user + "bla" }),
       /login failed/
     );
   });
 
   it("wrong password", () => {
     assert.throws(
-      () =>
-        new Transbase({
-          url: "//localhost:2024/sample",
-          user: "tbadmin",
-          password: "wrong",
-        }),
+      () => new Transbase({ ...config, password: config.password + "bla" }),
       /login failed/
     );
   });
 
   it("connect success", () => {
-    const client = new Transbase({
-      url: "//localhost:2024/sample",
-      user: "tbadmin",
-      password: "",
-    });
-    assert.equal(client != null, true);
-    client.close();
+    let client;
+    try {
+      client = new Transbase(config);
+      assert.equal(client != null, true);
+    } finally {
+      client.close();
+    }
   });
 });

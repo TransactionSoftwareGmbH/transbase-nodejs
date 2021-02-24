@@ -1,9 +1,8 @@
-name: Prebuild Binaries
+name: Test
 
 on:
   push:
-    branches: [ master ]
-  # Allows you to run this workflow manually from the Actions tab
+    branches: [ develop ]
   workflow_dispatch:
 
 jobs:
@@ -15,10 +14,10 @@ jobs:
           node-version: '14'
       - uses: actions/checkout@v2
         with:
-          ref: master
+          ref: develop
       - run: npm ci --ignore-scripts
-      - run: npm run prerebuild
-      - run: npm run prebuild:publish
+      - run: npm run rebuild
+      #- run: npm test -- --url=${{secrets.DB_URL}} --user=${{secrets.DB_USER}} --password=${{secrets.DB_PWD}}
   Windows:
     runs-on: windows-latest
     steps:
@@ -27,10 +26,10 @@ jobs:
           node-version: '14'
       - uses: actions/checkout@v2
         with:
-          ref: master
+          ref: develop
       - run: npm ci --ignore-scripts
-      - run: npm run prerebuild
-      - run: npm run prebuild:publish
+      - run: npm run rebuild
+      #- run: npm test -- --url=${{secrets.DB_URL}} --user=${{secrets.DB_USER}} --password=${{secrets.DB_PWD}}
   Linux:
     runs-on: ubuntu-latest
     steps:
@@ -39,7 +38,7 @@ jobs:
           node-version: '14'
       - uses: actions/checkout@v2
         with:
-          ref: master
+          ref: develop
       - run: npm ci --ignore-scripts
-      - run: npm run prerebuild
-      - run: npm run prebuild:publish
+      - run: npm run rebuild
+      - run: npm test -- --url=${{secrets.DB_URL}} --user=${{secrets.DB_USER}} --password=${{secrets.DB_PWD}}

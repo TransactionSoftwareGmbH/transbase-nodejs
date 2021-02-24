@@ -10,7 +10,7 @@
               "OS==\"mac\"",
               {
                 "files": [
-                  "$(TRANSBASE)/bin/libtci.dylib"
+                  "$(TCI)/lib/libtci.dylib"
                 ]
               }
             ],
@@ -18,7 +18,7 @@
               "OS==\"linux\"",
               {
                 "files": [
-                  "$(TRANSBASE)/bin/libtci.so"
+                  "$(TCI)/lib/libtci.so"
                 ]
               }
             ],
@@ -26,7 +26,7 @@
               "OS==\"win\"",
               {
                 "files": [
-                  "$(TRANSBASE)/bin/tci.dll"
+                  "$(TCI)/lib/tci.dll"
                 ]
               }
             ]
@@ -51,10 +51,10 @@
       ],
       "include_dirs": [
         "<!@(node -p \"require('node-addon-api').include\")",
-        "$(TRANSBASE)/include"
+        "$(TCI)/include"
       ],
       "library_dirs": [
-        "$(TRANSBASE)/lib"
+        "$(TCI)/lib"
       ],
       "libraries": [
         "-ltci"
@@ -72,7 +72,7 @@
               "CLANG_CXX_LANGUAGE_STANDARD": "c++17",
               "GCC_ENABLE_CPP_EXCEPTIONS": "YES",
               "CLANG_CXX_LIBRARY": "libc++",
-              "MACOSX_DEPLOYMENT_TARGET": "10.7"
+              "MACOSX_DEPLOYMENT_TARGET": "10.15"
             }
           }
         ],
