@@ -2,44 +2,21 @@ name: Prebuild Binaries
 
 on:
   push:
-    branches: [ master ]
+    branches: [master]
   workflow_dispatch:
 
 jobs:
-  MacOS:
-    runs-on: macos-latest
+  prebuild:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
     steps:
       - uses: actions/setup-node@v2
         with:
-          node-version: '14'
+          node-version: 14
       - uses: actions/checkout@v2
-        with:
-          ref: master
       - run: npm ci --ignore-scripts
       - run: npm run prerebuild
-      - run: npx cross-env TCI=${PWD}/.transbase prebuild --runtime napi --all --include-regex ".(node|lib|so|dll)$" --upload ${{secrets.git_hub_token}}
-  Windows:
-    runs-on: windows-latest
-    steps:
-      - uses: actions/setup-node@v2
-        with:
-          node-version: '14'
-      - uses: actions/checkout@v2
-        with:
-          ref: master
-      - run: npm ci --ignore-scripts
-      - run: npm run prerebuild
-      - run: npx cross-env TCI=${PWD}/.transbase prebuild --runtime napi --all --include-regex """.(node|lib|so|dll)$""" --upload ${{secrets.git_hub_token}}
-  Linux:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/setup-node@v2
-        with:
-          node-version: '14'
-      - uses: actions/checkout@v2
-        with:
-          ref: master
-      - run: npm ci --ignore-scripts
-      - run: npm run prerebuild
-      - run: npx cross-env TCI=${PWD}/.transbase prebuild --runtime napi --all --include-regex ".(node|lib|so|dll)$" --upload ${{secrets.git_hub_token}}
-
+      - run: npm run prebuild -- --upload ${{secrets.git_hub_token}}

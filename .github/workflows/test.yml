@@ -2,43 +2,23 @@ name: Test
 
 on:
   push:
-    branches: [ develop ]
+    branches: [develop]
   workflow_dispatch:
 
 jobs:
-  MacOS:
-    runs-on: macos-latest
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
     steps:
       - uses: actions/setup-node@v2
         with:
-          node-version: '14'
+          node-version: 14
       - uses: actions/checkout@v2
-        with:
-          ref: develop
       - run: npm ci --ignore-scripts
       - run: npm run rebuild
-      #- run: npm test -- --url=${{secrets.DB_URL}} --user=${{secrets.DB_USER}} --password=${{secrets.DB_PWD}}
-  Windows:
-    runs-on: windows-latest
-    steps:
-      - uses: actions/setup-node@v2
-        with:
-          node-version: '14'
-      - uses: actions/checkout@v2
-        with:
-          ref: develop
-      - run: npm ci --ignore-scripts
-      - run: npm run rebuild
-      #- run: npm test -- --url=${{secrets.DB_URL}} --user=${{secrets.DB_USER}} --password=${{secrets.DB_PWD}}
-  Linux:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/setup-node@v2
-        with:
-          node-version: '14'
-      - uses: actions/checkout@v2
-        with:
-          ref: develop
-      - run: npm ci --ignore-scripts
-      - run: npm run rebuild
-      - run: npm test -- --url=${{secrets.DB_URL}} --user=${{secrets.DB_USER}} --password=${{secrets.DB_PWD}}
+      - name: Test
+        if: matrix.os == 'ubuntu-latest'
+        run: npm test -- --url=${{secrets.DB_URL}} --user=${{secrets.DB_USER}} --password=${{secrets.DB_PWD}}
