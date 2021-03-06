@@ -110,11 +110,17 @@ public:
 		auto type = typeAndValue.first;
 		auto data = typeAndValue.second;
 		auto size = sizeof(data);
+
 		if (nameOrPosition.IsNumber())
 		{
 			auto position = nameOrPosition.As<Napi::Number>().Uint32Value() + 1;
 			if (type == TCI_C_CHAR) // TODO: string handling get<std::string> require libcpp
 				tci(TCISetData(resultSet, position, value.ToString().Utf8Value().data(), size, type, NULL));
+			else if (type == TCI_C_BYTE)
+			{
+				auto buffer = value.As<Napi::Buffer<unsigned char>>();
+				tci(TCISetData(resultSet, position, buffer.Data(), buffer.Length(), type, NULL));
+			}
 			else
 				tci(TCISetData(resultSet, position, &data, size, type, NULL));
 		}
@@ -123,6 +129,11 @@ public:
 			auto name = nameOrPosition.As<Napi::String>().Utf8Value();
 			if (type == TCI_C_CHAR)
 				tci(TCISetDataByName(resultSet, &name[0], value.ToString().Utf8Value().data(), size, type, NULL));
+			else if (type == TCI_C_BYTE)
+			{
+				auto buffer = value.As<Napi::Buffer<unsigned char>>();
+				tci(TCISetDataByName(resultSet, &name[0], buffer.Data(), buffer.Length(), type, NULL));
+			}
 			else
 				tci(TCISetDataByName(resultSet, &name[0], &data, size, type, NULL));
 		}
@@ -150,10 +161,13 @@ public:
 				return std::pair(TCI_C_DOUBLE, value.As<Napi::Number>().DoubleValue());
 			}
 		}
+		else if (value.IsBuffer())
+		{
+			return std::pair(TCI_C_BYTE, -1);
+		}
 		else
 		{
-			auto data = value.ToString().Utf8Value();
-			return std::pair(TCI_C_CHAR, data);
+			return std::pair(TCI_C_CHAR, value.ToString().Utf8Value());
 		}
 	}
 
@@ -232,6 +246,8 @@ public:
 		case TCI_SQL_DOUBLE:
 		case TCI_SQL_NUMERIC:
 			return getDoubleValue(col);
+		case TCI_SQL_BLOB:
+			return getBlobValue(col);
 		// character
 		case TCI_SQL_CHAR:
 		case TCI_SQL_VARCHAR:
@@ -283,6 +299,15 @@ public:
 		double d;
 		tci(TCIGetData(resultSet, colNumber, &d, sizeof(d), NULL, TCI_C_DOUBLE, &isNull));
 		return Napi::Number::New(env, d);
+	}
+
+	Napi::Value getBlobValue(Columnnumber &colNumber)
+	{
+		Int4 blobSize;
+		tci(TCIGetDataSize(resultSet, colNumber, TCI_C_BYTE, &blobSize, &isNull));
+		auto buffer = Napi::Buffer<unsigned char>::New(env, blobSize);
+		tci(TCIGetData(resultSet, colNumber, buffer.Data(), blobSize, NULL, TCI_C_BYTE, &isNull));
+		return buffer;
 	}
 
 	Napi::Value getStringValue(Columnnumber &colNumber)

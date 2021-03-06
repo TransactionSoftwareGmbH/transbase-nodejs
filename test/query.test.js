@@ -15,7 +15,7 @@ describe("Transbase.query", () => {
         nr 	integer not null primary key auto_increment,
         date 	timestamp not null default currentdate,
         amount 	numeric(10,2) not null,
-        comment varchar(*)
+        comment varchar(*),
       );`);
     client.query(insert`values (default, default, 100, 'Withdrawal')`);
     client.query(insert`values (default, currentdate, -9.50, 'Lunch🚀')`);
@@ -28,6 +28,7 @@ describe("Transbase.query", () => {
     try {
       client.query(`DROP TABLE ${TABLE};`);
     } finally {
+      console.log("shutting down");
       client.close();
     }
   });
@@ -159,6 +160,34 @@ describe("Transbase.query", () => {
 
     it("returns number of deleted rows", () => {
       assert.equal(client.query(`delete from ${TABLE} where nr >= 9998`), 2);
+    });
+  });
+
+  describe("blobs", () => {
+    const BLOB_TABLE = "BLOB_" + UID;
+
+    before(() => {
+      client.query(`create table ${BLOB_TABLE}
+      (
+        id 	integer not null primary key auto_increment,
+        image blob
+      );`);
+    });
+
+    after(() => {
+      try {
+        client.query(`DROP TABLE ${BLOB_TABLE};`);
+      } catch (e) {}
+    });
+
+    it("can insert blob values as buffer", () => {
+      const blob = Buffer.from([1, 2, 3, 4, 5]);
+      client.query(`insert into ${BLOB_TABLE} values (1, ?);`, [blob]);
+      const { image } = client
+        .query(`select image from ${BLOB_TABLE} where id = 1`)
+        .next();
+      assert.ok(image);
+      assert.ok(blob.equals(image));
     });
   });
 });

@@ -1,5 +1,5 @@
 const { Transbase } = require("./transbase");
-const config = requore("./test/config");
+const config = require("./test/config");
 
 const transbase = new Transbase(
   config || {
@@ -9,7 +9,7 @@ const transbase = new Transbase(
   }
 );
 
-console.log(transbase.query("select * from cashbook"));
+console.log(transbase.query("select * from cashbook").toArray());
 
 // console.log(transbase.query("select count(*) from cashbook"));
 
