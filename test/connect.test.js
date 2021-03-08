@@ -56,8 +56,15 @@ describe("Transbase Client", () => {
 
   it("db does not exist", () => {
     assert.throws(
-      () => new Transbase({ ...config, url: config.url + "bla" }),
-      /database <(.*)bla> does not exist/
+      () =>
+        new Transbase({
+          ...config,
+          url: config.url
+            .replace("//", "&&")
+            .replace("/", "/bla")
+            .replace("&&", "//"),
+        }),
+      /database <bla(.*)> does not exist/
     );
   });
 
