@@ -1,9 +1,4 @@
-const args = process.argv.slice(2).reduce((acc, next) => {
-  const [key, value] = next.split("=");
-  acc[key.replace("--", "")] = value;
-  return acc;
-}, {});
-
+const args = require("minimist")(process.argv.slice(2));
 module.exports = {
   url: args.url || "//localhost:2024/sample",
   user: args.user || "tbadmin",
