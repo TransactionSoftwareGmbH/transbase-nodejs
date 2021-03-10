@@ -12,13 +12,16 @@ This is a nodejs [transbase](https://www.transaction.de/loesungen/transbase-ress
 ```
 npm install @transaction/transbase-nodejs
 ```
+
 or if you are using yarn
+
 ```
 yarn add @transaction/transbase-nodejs
 ```
 
 > If prebuild binaries are not available for you system you need to install [node-gyp](https://github.com/nodejs/node-gyp/blob/master/README.md) first to make sure that the native adddon can be build on your system.
-## Example 
+
+## Example
 
 ```js
 const { Transbase } = require("@transaction/transbase-nodejs");
@@ -37,35 +40,76 @@ transbase.close();
 ```
 
 insert, update and delete are executed similar but the number of affected rows is returned instead:
+
 ```js
-transbase.query("insert into cashbook values (42, default, 100, 'INSERT');") // = 1
+transbase.query("insert into cashbook values (42, default, 100, 'INSERT');"); // = 1
 ```
 
 Query parameters can be passed as second argument
+
 ```js
 // pass parameters as object matching named parameters
-transbase.query("select * from cashbook where nr >= :nr and comment like :startsWith", { nr: 1, startsWith: "Lu%" }); // object 
+transbase.query(
+  "select * from cashbook where nr >= :nr and comment like :startsWith",
+  { nr: 1, startsWith: "Lu%" }
+); // object
 // or as an array for positional parameters
-transbase.query("select * from cashbook where nr >= ? and comment like ?", [1, "Lu%",]);
+transbase.query("select * from cashbook where nr >= ? and comment like ?", [
+  1,
+  "Lu%",
+]);
 ```
+
 ## Api Reference
 
 #### `class Transbase(options:{url:string,user:string,password:string})`
+
 Creates a new Transbase Client, connects and login to the database given by the url authenticated by the given user and password. Don't forget to invoke [`close`](#close) when your done.
+
 #### `query(statement:string, parameters?: array|object): ResultSet|number`
-executes the given statement. In case of a "select" statement a  [ResultSet](#ResultSet) object is returned, otherwise the number of affected rows. Query parameters are passed as second argument as object `{[param]:value}` in case of named paramters *:param* or 
-as an value array in case of positional paramters *?*.
+
+executes the given statement. In case of a "select" statement a [ResultSet](#ResultSet) object is returned, otherwise the number of affected rows. Query parameters are passed as second argument as object `{[param]:value}` in case of named paramters _:param_ or
+as an value array in case of positional paramters _?_.
+
 #### <a id="#close"></a>`close(): void`
+
 closes the transbase clients and clean up allocated resources
 
 #### <a id="#ResultSet"></a> `class ResultSet`
+
 #### `next(): object`
+
 fetches the next row as object or undefined if no more data is found. The object keys are the column names.
+
 #### `toArray(): object[]`
+
 convenience method to get all rows as object array.
+
+## Type Mapping
+
+| SQL Type       | JS Type        |
+| :------------- | :---------------- |
+| BOOL (BOOLEAN) | boolean           |
+| TINYINT        | number            |
+| SMALLINT       | number            |
+| INTEGER        | number            |
+| BIGINT         | number            |
+| NUMERIC        | number            |
+| FLOAT (REAL)   | number            |
+| DOUBLE         | number            |
+| CHAR           | string            |
+| VARCHAR        | string            |
+| DATE           | string (iso-8601) |
+| TIME           | string (iso-8601) |
+| TIMESTAMP      | string (iso-8601) |
+| CLOB           | string            |
+| BINCHAR        | Buffer            |
+| VARBINARY      | Buffer            |
+| BLOB           | Buffer            |
 
 
 ## Contribution
+
 VS-Code Editor with c++ extension and prettier is recommended.
 
 The only relevant source files are:
@@ -75,16 +119,19 @@ The only relevant source files are:
 
 ## Build
 
-run `npm run rebuild` which will also download the required tci sdk. 
+run `npm run rebuild` which will also download the required tci sdk.
+
 ## Test
 
 test directory contains some unit tests that can be execute with
 `npm test`
 wich uses the url `//localhost:2024/sample` (user=tbadmin,password="") by default.
 You can pass another connection with command line arguments:
+
 ```
 npm test -- --url=<db_url> --user=<user> --password=<password>
 ```
+
 ## Playground
 
 run.js contains a sample demo assuming a running transbase db "sample" at localhost:2024 with an existing table "cashbook".
@@ -93,4 +140,3 @@ execute:
 `node run` to run a query example executed from nodejs
 
 you can pass different connect parameters via command line arguments (url,user,password) similar to npm test.
-

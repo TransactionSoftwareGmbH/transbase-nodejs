@@ -163,14 +163,16 @@ describe("Transbase.query", () => {
     });
   });
 
-  describe("blobs", () => {
+  describe("blobs clobs and binaries", () => {
     const BLOB_TABLE = "BLOB_" + UID;
 
     before(() => {
       client.query(`create table ${BLOB_TABLE}
       (
         id 	integer not null primary key auto_increment,
-        image blob
+        image blob,
+        text clob,
+        byte BINCHAR(*)
       );`);
     });
 
@@ -180,14 +182,36 @@ describe("Transbase.query", () => {
       } catch (e) {}
     });
 
-    it("can insert blob values as buffer", () => {
-      const blob = Buffer.from([1, 2, 3, 4, 5]);
-      client.query(`insert into ${BLOB_TABLE} values (1, ?);`, [blob]);
+    it("can insert and select blob values as buffer", () => {
+      const blob = require("fs").readFileSync("./README.md")
+      client.query(`insert into ${BLOB_TABLE} values (1, ?, null, null);`, [blob]);
       const { image } = client
         .query(`select image from ${BLOB_TABLE} where id = 1`)
         .next();
       assert.ok(image);
       assert.ok(blob.equals(image));
+    });
+
+    it("can insert and select clob values as string", () => {
+      const clob = require("fs").readFileSync("./README.md").toString();
+      client.query(`insert into ${BLOB_TABLE} values (2, null, ?, null);`, [
+        clob
+      ]);
+      const { text } = client
+        .query(`select text from ${BLOB_TABLE} where id = 2`)
+        .next();
+      assert.ok(clob);
+      assert.equal(clob,text);
+    });
+
+    it("can insert and select binary values as buffer", () => {
+      const binary = Buffer.from([1,2,3])
+      client.query(`insert into ${BLOB_TABLE} values (3, null, null, ?);`, [binary]);
+      const { byte } = client
+        .query(`select byte from ${BLOB_TABLE} where id = 3`)
+        .next();
+      assert.ok(byte);
+      assert.ok(binary.equals(byte));;
     });
   });
 });

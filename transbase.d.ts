@@ -1,4 +1,4 @@
-type Value = string | number | boolean | null | undefined;
+type Value = string | number | boolean | Buffer | null | undefined;
 type PositionedParamter = Value[];
 type NamedParameter = { [parameterName: string]: Value };
 type Params = PositionedParamter | NamedParameter;
@@ -26,12 +26,12 @@ export declare interface ResultSet<T = unknown> {
  * transbase.query("select * from cashbook");
  * transbase.close();
  *********************************/
-export declare interface Transbase {
+export declare class Transbase {
   /**
    * create a new transbase database client
    * @param config defining the database url connecting to, logging in with the given user and password
    **/
-  new (config: { url: string; user: string; password: string }): Transbase;
+  new(config: { url: string; user: string; password: string }): Transbase;
 
   /**
    * execute a query directly in auto-commit mode

@@ -21,4 +21,4 @@ jobs:
       - run: npm run rebuild
       - name: Test
         if: matrix.os == 'ubuntu-latest'
-        run: npm test -- --url "${{secrets.DB_URL}}"" --user "${{secrets.DB_USER}}" --password "${{secrets.DB_PWD}}" 
+        run: npm test -- --url "${{secrets.DB_URL}}" --user "${{secrets.DB_USER}}" --password "${{secrets.DB_PWD}}" 

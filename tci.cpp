@@ -247,6 +247,8 @@ public:
 		case TCI_SQL_NUMERIC:
 			return getDoubleValue(col);
 		case TCI_SQL_BLOB:
+		case TCI_SQL_BINARY:
+		case TCI_SQL_BIT:
 			return getBlobValue(col);
 		// character
 		case TCI_SQL_CHAR:
@@ -316,14 +318,14 @@ public:
 		Int4 byteSize;
 		tci(TCIGetDataSize(resultSet, colNumber, TCI_C_CHAR, &byteSize, &isNull));
 		tci(TCIGetDataCharLength(resultSet, colNumber, &charLength, &isNull));
-
+		auto size = std::max(charLength, byteSize) + 1;
 		if (isNull)
 			return env.Null();
 		if (byteSize == 0 || charLength == 0)
 			return Napi::String::New(env, "");
 
 		std::string str(charLength, ' ');
-		tci(TCIGetData(resultSet, colNumber, str.data(), byteSize + 1, NULL, TCI_C_CHAR, &isNull));
+		tci(TCIGetData(resultSet, colNumber, str.data(), size, NULL, TCI_C_CHAR, &isNull));
 		return Napi::String::New(env, str);
 	}
 
