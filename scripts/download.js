@@ -9,8 +9,7 @@ const tar = require("tar");
 const outDir = process.env.TCI;
 const version = require("../package.json").transbaseVersion;
 const downloadUrl = (os = getPlatform()) =>
-  `https://www.transaction.de/transbase/${version}/${os.platform}_${os.arch}/sdk/transbase-${version}_${os.platform}-${os.arch}_sdk.tgz`;
-
+  `https://www.transaction.de/transbase/${version}/${os.platform}_${os.arch}/sdk/transbase-${version}_${os.platform}_${os.arch}_sdk.tgz`;
 function checkSdkDownload() {
   // skip if already downloaded
   if (fs.existsSync(path.join(outDir, "include", "tci.h"))) {

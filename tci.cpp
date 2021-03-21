@@ -1,7 +1,12 @@
+// TODO
+#undef UNICODE
+#undef _UNICODE
+
 #include <napi.h>
 #include "tci.h"
 #include <variant>
 
+typedef char Char;
 /**
  * node-api tci wrapper
  */
@@ -14,9 +19,9 @@ private:
 	TCIConnection *connection = NULL;
 	TCIStatement *statement = NULL;
 	TCIResultSet *resultSet = NULL;
-	char sqlcode[5];
-	Error errorCode;
-	char errorMessage[1000];
+	Char sqlcode[5];
+	TBErrorCode errorCode;
+	Char errorMessage[1000];
 	short isNull;
 	Napi::Env env;
 
@@ -91,12 +96,12 @@ public:
 	void prepare(const Napi::CallbackInfo &info)
 	{
 		auto query = info[0].As<Napi::String>().Utf8Value();
-		tci(TCIPrepareA(statement, &query[0]));
+		tci(TCIPrepare(statement, &query[0]));
 	}
 
 	void execute(const Napi::CallbackInfo &info)
 	{
-		tci(TCIExecuteA(resultSet, 1, 0));
+		tci(TCIExecute(resultSet, 1, 0));
 	}
 
 	void setParam(const Napi::CallbackInfo &info)
@@ -200,7 +205,7 @@ public:
 
 	Napi::Value getResultSetStringAttribute(const Napi::CallbackInfo &info)
 	{
-		char value[MAXIDENTSIZE];
+		Char value[MAXIDENTSIZE];
 		auto attrKey = info[0].As<Napi::Number>().Uint32Value();
 		auto col = info.Length() > 1 ? info[1].As<Napi::Number>() : 1;
 		tci(TCIGetResultSetAttribute(resultSet, attrKey, col, &value, sizeof(value), NULL));
@@ -227,7 +232,7 @@ public:
 		return Napi::Number::New(env, state);
 	}
 
-	Napi::Value getValue(Columnnumber col, int sqlType)
+	Napi::Value getValue(TCIColumnnumber col, int sqlType)
 	{
 		switch (sqlType)
 		{
@@ -261,49 +266,49 @@ public:
 
 	Napi::Value getValue(const Napi::CallbackInfo &info)
 	{
-		Columnnumber col = info[0].As<Napi::Number>().Uint32Value();
+		TCIColumnnumber col = info[0].As<Napi::Number>().Uint32Value();
 		auto sqlType = info[1].As<Napi::Number>().Uint32Value();
 		isNull = 0;
 		auto value = getValue(col, sqlType);
 		return isNull ? env.Null() : value;
 	}
 
-	Napi::Value getBooleanValue(Columnnumber &colNumber)
+	Napi::Value getBooleanValue(TCIColumnnumber &colNumber)
 	{
 		bool b;
 		tci(TCIGetData(resultSet, colNumber, &b, sizeof(b), NULL, TCI_C_INT1, &isNull));
 		return Napi::Boolean::New(env, b);
 	}
 
-	Napi::Value getIntegerValue(Columnnumber &colNumber)
+	Napi::Value getIntegerValue(TCIColumnnumber &colNumber)
 	{
 		int i;
 		tci(TCIGetData(resultSet, colNumber, &i, sizeof(i), NULL, TCI_C_INT4, &isNull));
 		return Napi::Number::New(env, i);
 	}
 
-	Napi::Value getBigIntValue(Columnnumber &colNumber)
+	Napi::Value getBigIntValue(TCIColumnnumber &colNumber)
 	{
 		long long ll;
 		tci(TCIGetData(resultSet, colNumber, &ll, sizeof(ll), NULL, TCI_C_INT8, &isNull));
 		return Napi::Number::New(env, ll);
 	}
 
-	Napi::Value getFloatValue(Columnnumber &colNumber)
+	Napi::Value getFloatValue(TCIColumnnumber &colNumber)
 	{
 		float f;
 		tci(TCIGetData(resultSet, colNumber, &f, sizeof(f), NULL, TCI_C_FLOAT, &isNull));
 		return Napi::Number::New(env, f);
 	}
 
-	Napi::Value getDoubleValue(Columnnumber &colNumber)
+	Napi::Value getDoubleValue(TCIColumnnumber &colNumber)
 	{
 		double d;
 		tci(TCIGetData(resultSet, colNumber, &d, sizeof(d), NULL, TCI_C_DOUBLE, &isNull));
 		return Napi::Number::New(env, d);
 	}
 
-	Napi::Value getBlobValue(Columnnumber &colNumber)
+	Napi::Value getBlobValue(TCIColumnnumber &colNumber)
 	{
 		Int4 blobSize;
 		tci(TCIGetDataSize(resultSet, colNumber, TCI_C_BYTE, &blobSize, &isNull));
@@ -312,7 +317,7 @@ public:
 		return buffer;
 	}
 
-	Napi::Value getStringValue(Columnnumber &colNumber)
+	Napi::Value getStringValue(TCIColumnnumber &colNumber)
 	{
 		Int4 charLength;
 		Int4 byteSize;
