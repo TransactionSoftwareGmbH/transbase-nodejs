@@ -139,4 +139,4 @@ run.js contains a sample demo assuming a running transbase db "sample" at localh
 execute:
 `node run` to run a query example executed from nodejs
 
-you can pass different connect parameters via command line arguments (url,user,password) similar to npm test.
+you can pass different connect parameters via command line arguments (--url or -H, user or -U, password or -P) similar to npm test.
