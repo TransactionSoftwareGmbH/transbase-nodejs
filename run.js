@@ -9,6 +9,8 @@ const transbase = new Transbase(
   }
 );
 
+// transbase.setTypeCast(false);
+
 console.log(transbase.query("select * from cashbook").toArray());
 
 // console.log(transbase.query("select count(*) from cashbook"));

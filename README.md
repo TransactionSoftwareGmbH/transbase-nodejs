@@ -62,9 +62,11 @@ transbase.query("select * from cashbook where nr >= ? and comment like ?", [
 
 ## Api Reference
 
-#### `class Transbase(options:{url:string,user:string,password:string})`
+#### `class Transbase(options:{url:string,user:string,password:string, typeCast?:boolean})`
 
-Creates a new Transbase Client, connects and login to the database given by the url authenticated by the given user and password. Don't forget to invoke [`close`](#close) when your done.
+Creates a new Transbase Client, connects and login to the database given by the url authenticated by the given user and password.
+Set typeCast option to false if column values should be fetched as strings.
+Don't forget to invoke [`close`](#close) when your done.
 
 #### `query(statement:string, parameters?: array|object): ResultSet|number`
 
@@ -87,7 +89,10 @@ convenience method to get all rows as object array.
 
 ## Type Mapping
 
-| SQL Type       | JS Type        |
+By default sql types are mapped to native js types wherever possible.
+Set `typeCast` option to false in config object, or use `setTypeCast(value)` to get column values as plain strings.
+
+| SQL Type       | JS Type           |
 | :------------- | :---------------- |
 | BOOL (BOOLEAN) | boolean           |
 | TINYINT        | number            |
@@ -106,7 +111,7 @@ convenience method to get all rows as object array.
 | BINCHAR        | Buffer            |
 | VARBINARY      | Buffer            |
 | BLOB           | Buffer            |
-
+| BITS           | string (bits)     |
 
 ## Contribution
 

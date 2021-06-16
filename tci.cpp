@@ -24,6 +24,7 @@ private:
 	Char errorMessage[1000];
 	short isNull;
 	Napi::Env env;
+	bool typeCast = true;
 
 public:
 	TCI(const Napi::CallbackInfo &info) : Napi::ObjectWrap<TCI>(info), env(info.Env())
@@ -51,6 +52,7 @@ public:
 											   InstanceMethod<&TCI::getValue>("getValue"),
 											   InstanceMethod<&TCI::getQueryType>("getQueryType"),
 											   InstanceMethod<&TCI::close>("close"),
+											   InstanceMethod<&TCI::setTypeCast>("setTypeCast")
 										   });
 		exports.Set("TCI", tci);
 	}
@@ -85,6 +87,11 @@ public:
 		tci(TCILogin(connection, &user[0], &password[0]));
 		tci(TCIAllocStatement(connection, error, &statement));
 		tci(TCIAllocResultSet(statement, error, &resultSet));
+	}
+
+	void setTypeCast(const Napi::CallbackInfo &info)
+	{
+		typeCast = info[0].As<Napi::Boolean>();
 	}
 
 	void executeDirect(const Napi::CallbackInfo &info)
@@ -234,6 +241,18 @@ public:
 
 	Napi::Value getValue(TCIColumnnumber col, int sqlType)
 	{
+		if(!typeCast){
+			switch (sqlType){
+				case TCI_SQL_BLOB:
+				case TCI_SQL_BINARY:
+				case TCI_SQL_BITSHORT:
+				case TCI_SQL_BIT:
+					return getBitsValue(col);
+				default:
+					return getStringValue(col);
+			}
+		}
+
 		switch (sqlType)
 		{
 		// logical
@@ -253,8 +272,10 @@ public:
 			return getDoubleValue(col);
 		case TCI_SQL_BLOB:
 		case TCI_SQL_BINARY:
-		case TCI_SQL_BIT:
 			return getBlobValue(col);
+		case TCI_SQL_BITSHORT:
+		case TCI_SQL_BIT:
+			return getBitsValue(col);
 		// character
 		case TCI_SQL_CHAR:
 		case TCI_SQL_VARCHAR:
@@ -315,6 +336,15 @@ public:
 		auto buffer = Napi::Buffer<unsigned char>::New(env, blobSize);
 		tci(TCIGetData(resultSet, colNumber, buffer.Data(), blobSize, NULL, TCI_C_BYTE, &isNull));
 		return buffer;
+	}
+
+	Napi::Value getBitsValue(TCIColumnnumber &colNumber)
+	{
+		Int4 bitsSize;
+		tci(TCIGetDataSize(resultSet, colNumber, TCI_C_CHAR, &bitsSize, &isNull));
+		std::string str(bitsSize-2, '0');
+		tci(TCIGetData(resultSet, colNumber, str.data(), bitsSize, NULL, TCI_C_CHAR, &isNull));
+		return Napi::String::New(env, str);;
 	}
 
 	Napi::Value getStringValue(TCIColumnnumber &colNumber)

@@ -3,6 +3,19 @@ type PositionedParamter = Value[];
 type NamedParameter = { [parameterName: string]: Value };
 type Params = PositionedParamter | NamedParameter;
 
+interface TransbaseConfig {
+  /** database connection string e.g. "ssl://<host>:<port>/<dbname>" */
+  url: string;
+  user: string;
+  password: string;
+  /**
+   * Determines if column values should be converted to native JavaScript types.
+   * Set to false to get column values as plain strings.
+   * @default true
+   */
+  typeCast?: boolean;
+}
+
 /**********************************
  * RESULT SET
  * to fetch next rows sequentially or get all with toArray convenience
@@ -31,7 +44,7 @@ export declare class Transbase {
    * create a new transbase database client
    * @param config defining the database url connecting to, logging in with the given user and password
    **/
-  new(config: { url: string; user: string; password: string }): Transbase;
+  new(config: TransbaseConfig): Transbase;
 
   /**
    * execute a query directly in auto-commit mode
@@ -46,4 +59,7 @@ export declare class Transbase {
 
   /** close connection and free resources */
   close(): void;
+
+  /** set typeCast conversion option @see TransbaseConfig.typeCast */
+  setTypeCast(value: boolean): void;
 }

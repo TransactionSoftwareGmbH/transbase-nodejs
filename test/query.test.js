@@ -22,11 +22,36 @@ describe("Transbase.query", () => {
     client.query(insert`(amount, comment) values (-5.5, 'Drink');`);
     client.query(insert`values (default, '2021-02-20', 0, '');`);
     client.query(insert`(amount, comment) values (-2.5, null);`);
+
+    client.query(`create table LEDGER_${UID} (
+      a TINYINT,
+      b SMALLINT,
+      c INTEGER,
+      d BIGINT,
+      e NUMERIC(5,2),
+      f DECIMAL(5,2),
+      g BLOB,
+      h CLOB,
+      i VARCHAR(*),
+      j CHAR(*) ,
+      k STRING,
+      l BINCHAR (*),
+      m BITS (*),
+      n BITS2 (*),
+      o BOOL,
+      p DATETIME[YY:MO],
+      q DATE,
+      r TIME,
+      s TIMESTAMP,
+      t TIMESPAN[YY:MO], 
+      u INTERVAL HOUR TO SECOND
+      )`);
   });
 
   after(() => {
     try {
       client.query(`DROP TABLE ${TABLE};`);
+      client.query(`DROP TABLE LEDGER_${UID}`);
     } finally {
       console.log("shutting down");
       client.close();
@@ -183,8 +208,10 @@ describe("Transbase.query", () => {
     });
 
     it("can insert and select blob values as buffer", () => {
-      const blob = require("fs").readFileSync("./README.md")
-      client.query(`insert into ${BLOB_TABLE} values (1, ?, null, null);`, [blob]);
+      const blob = require("fs").readFileSync("./README.md");
+      client.query(`insert into ${BLOB_TABLE} values (1, ?, null, null);`, [
+        blob,
+      ]);
       const { image } = client
         .query(`select image from ${BLOB_TABLE} where id = 1`)
         .next();
@@ -195,23 +222,114 @@ describe("Transbase.query", () => {
     it("can insert and select clob values as string", () => {
       const clob = require("fs").readFileSync("./README.md").toString();
       client.query(`insert into ${BLOB_TABLE} values (2, null, ?, null);`, [
-        clob
+        clob,
       ]);
       const { text } = client
         .query(`select text from ${BLOB_TABLE} where id = 2`)
         .next();
       assert.ok(clob);
-      assert.equal(clob,text);
+      assert.equal(clob, text);
     });
 
     it("can insert and select binary values as buffer", () => {
-      const binary = Buffer.from([1,2,3])
-      client.query(`insert into ${BLOB_TABLE} values (3, null, null, ?);`, [binary]);
+      const binary = Buffer.from([1, 2, 3]);
+      client.query(`insert into ${BLOB_TABLE} values (3, null, null, ?);`, [
+        binary,
+      ]);
       const { byte } = client
         .query(`select byte from ${BLOB_TABLE} where id = 3`)
         .next();
       assert.ok(byte);
-      assert.ok(binary.equals(byte));;
+      assert.ok(binary.equals(byte));
+    });
+  });
+
+  describe("transbase values/literals", () => {
+    before(() => {
+      client.query(`
+        insert into LEDGER_${UID} values (
+          120,
+          32000,
+          2000111222,
+          4000111222333,
+          5.2,
+          555.22,
+          0x0110,
+          'Clob',
+          'Varchar(*)',
+          'Char(*)' ,
+          'String',
+          0x0110,
+          0b0110110,
+          0b0110,
+          TRUE,
+          DATETIME(2002-12),
+          DATE '2002-12-24',
+          TIME '17:35:10',
+          TIMESTAMP '2002-12-24 17:35:10.025',
+          TIMESPAN[YY:MO](2-6), 
+          INTERVAL '2:12:35' HOUR TO SECOND
+          );
+        `);
+    });
+
+    it("can select all datatypes as js values", () => {
+      const resultSet = client.query(`select * from LEDGER_${UID}`);
+      assert.deepEqual(resultSet.toArray()[0], {
+        a: 120,
+        b: 32000,
+        c: 2000111222,
+        d: 4000111222333,
+        e: 5.2,
+        f: 555.22,
+        g: Buffer.from([1, 16]),
+        h: "Clob",
+        i: "Varchar(*)",
+        j: "Char(*)",
+        k: "String",
+        l: Buffer.from([1, 16]),
+        m: "0110110",
+        n: "0110",
+        o: true,
+        p: "2002-12",
+        q: "2002-12-24",
+        r: "17:35:10",
+        s: "2002-12-24 17:35:10.250",
+        t: "2-06",
+        u: "2:12:35",
+      });
+    });
+
+    it("can select all values as plain strings (tci_c_char)", () => {
+      try {
+        client.setTypeCast(false);
+        const resultSet = client.query(`select * from LEDGER_${UID}`);
+        assert.deepEqual(resultSet.toArray()[0], {
+          a: "120",
+          b: "32000",
+          c: "2000111222",
+          d: "4000111222333",
+          e: "5.20",
+          f: "555.22",
+          g: "0110",
+          h: "Clob",
+          i: "Varchar(*)",
+          j: "Char(*)",
+          k: "String",
+          l: "0110",
+          m: "0110110",
+          n: "0110",
+          o: "true",
+          p: "2002-12",
+          q: "2002-12-24",
+          r: "17:35:10",
+          s: "2002-12-24 17:35:10.250",
+          t: "2-06",
+          u: "2:12:35",
+        });
+      } finally {
+        client.setTypeCast(true);
+      }
     });
   });
 });

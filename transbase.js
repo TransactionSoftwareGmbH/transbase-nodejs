@@ -65,7 +65,14 @@ class Transbase {
    **/
   constructor(config) {
     this.tci = new TCI();
+    if (config && config.typeCast != null) {
+      this.setTypeCast(config.typeCast);
+    }
     this.tci.connect(config);
+  }
+
+  setTypeCast(value) {
+    this.tci.setTypeCast(value);
   }
 
   /**
