@@ -331,5 +331,46 @@ describe("Transbase.query", () => {
         client.setTypeCast(true);
       }
     });
+
+    it("can compute hash of record for simple records, strings without overflow", () => {
+      client.setTypeCast(false);
+      const rs = client.query(`select * from LEDGER_${UID}`);
+      assert.equal(
+        hashSimple(rs),
+        "e84b812c3d611dad03dbcf6d6954a2d618b1f11b748690fcf27b40d869acf68f"
+      );
+    });
+
+    it("can compute hash of record using buffered chunk of data for large lobs", () => {
+      client.setTypeCast(true);
+      const rs = client.query(`select * from LEDGER_${UID}`);
+      assert.equal(
+        hashRecordBuffered(rs),
+        "e84b812c3d611dad03dbcf6d6954a2d618b1f11b748690fcf27b40d869acf68f"
+      );
+    });
   });
 });
+
+function hashSimple(resultSet) {
+  const hash = require("crypto").createHash("sha256");
+  Object.values(resultSet.next()).forEach((value) => hash.update(value));
+  return hash.digest("hex");
+}
+
+function hashRecordBuffered(resultSet) {
+  resultSet.fetch();
+  const hash = require("crypto").createHash("sha256");
+  for (const { col, typeName } of resultSet.getColumns()) {
+    if (typeName === "BLOB" || typeName === "CLOB") {
+      let buffer = { hasMore: true };
+      while (buffer.hasMore) {
+        buffer = resultSet.getValueAsBuffer(col, 8);
+        hash.update(buffer.data);
+      }
+    } else {
+      hash.update(resultSet.getValueAsString(col));
+    }
+  }
+  return hash.digest("hex");
+}

@@ -1,4 +1,4 @@
-const { TCI, Attribute, State } = require("bindings")("tci");
+const { TCI, Attribute, State, SqlType } = require("bindings")("tci");
 
 /**********************************
  * RESULT SET
@@ -16,6 +16,11 @@ class ResultSet {
         col,
         name: Attributes.getColumnName(this.tci, col),
         type: Attributes.getColumnType(this.tci, col),
+        get typeName() {
+          return (Object.entries(SqlType).find(
+            ([key, value]) => value === this.type
+          ) || ["UNKNOWN"])[0];
+        },
       });
     }
   }
@@ -29,6 +34,27 @@ class ResultSet {
       }
       return row;
     }
+  }
+
+  fetch() {
+    return this.tci.fetch();
+  }
+
+  getValue(colNoOrName, typeCast = true) {
+    const col = this.getColumn(colNoOrName);
+    return this.tci.getValue(col.col, col.type, typeCast);
+  }
+
+  getValueAsString(colNoOrName) {
+    return this.getValue(colNoOrName, false);
+  }
+
+  getValueAsBuffer(colNoOrName, size = 1024 * 1024) {
+    const col = this.getColumn(colNoOrName);
+    return {
+      data: this.tci.getValueAsBuffer(col.col, size),
+      hasMore: this.tci.getState() == State.DATA_TRUNCATION,
+    };
   }
 
   /** false if there is no further row to fetch (NO_DATA_FOUND) */
@@ -45,6 +71,16 @@ class ResultSet {
       nextRow = this.next();
     }
     return result;
+  }
+
+  getColumns() {
+    return this.colInfos;
+  }
+
+  getColumn(colNumberOrName) {
+    return typeof colNumberOrName === "number"
+      ? this.colInfos[colNumberOrName - 1]
+      : this.colInfos.find((it) => it.name === colNoOrName);
   }
 }
 

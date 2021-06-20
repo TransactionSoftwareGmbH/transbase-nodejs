@@ -87,6 +87,19 @@ fetches the next row as object or undefined if no more data is found. The object
 
 convenience method to get all rows as object array.
 
+#### `getColumns(): ColInfo[]`
+
+get meta information of columns in this result set
+
+#### `getValue(colNumberOrName: number|string): any`
+
+#### `getValueAsString(colNumberOrName: number|string): string | null`
+
+#### `getValueAsBuffer(colNumberOrName: number|string, size?: number): {data:Buffer, hasMore: boolean}`
+
+low level api methods to get column value as string or buffered data chunk.
+Column numbers start with 1! Use getValueAsBuffer when working with large BLOBS or CLOBS.
+
 ## Type Mapping
 
 By default sql types are mapped to native js types wherever possible.

@@ -2,6 +2,16 @@ type Value = string | number | boolean | Buffer | null | undefined;
 type PositionedParamter = Value[];
 type NamedParameter = { [parameterName: string]: Value };
 type Params = PositionedParamter | NamedParameter;
+type ColInfo = {
+  /** column index starting from 1 */
+  col: number;
+  /** column name */
+  name: string;
+  /** sql column type code @see SqlType */
+  type: number;
+  /** readable sql column type name @see SqlTypeName */
+  typeName: SqlTypeName;
+};
 
 interface TransbaseConfig {
   /** database connection string e.g. "ssl://<host>:<port>/<dbname>" */
@@ -11,9 +21,13 @@ interface TransbaseConfig {
   /**
    * Determines if column values should be converted to native JavaScript types.
    * Set to false to get column values as plain strings.
+   * options:
+   * - true: convert values to native types (default)
+   * - false: all column values as strings
+   * - just-blobs: only convert BLOB and CLOB to nodejs.Buffer
    * @default true
    */
-  typeCast?: boolean;
+  typeCast?: boolean | "just-blobs";
 }
 
 /**********************************
@@ -27,6 +41,22 @@ export declare interface ResultSet<T = unknown> {
   hasNext(): boolean;
   /** convenience to get all rows as object array */
   toArray(): T[];
+  //-----------------
+  // low-level api
+  //-----------------
+  /** get column meta information of this result set, e.g. column name, sql-type  */
+  getColumns(): ColInfo[];
+  /** fetch the next record, use getValue or getValueAsString to retrieve data  */
+  fetch(): boolean;
+  /** get value by column number starting with 1 or column name (respects typeCast option) */
+  getValue<R = Value>(colNumberOrName: number | string): R;
+  /** get value as string by column number starting with 1 or column name */
+  getValueAsString(colNumberOrName: number): string | null;
+  /** get value as buffer data chunk of given size by column number starting with 1 or column name */
+  getValueAsBuffer(
+    colNumberOrName: number | string,
+    size: number
+  ): { data: Buffer; hasMore: boolean } | null;
 }
 
 /**********************************
@@ -63,3 +93,26 @@ export declare class Transbase {
   /** set typeCast conversion option @see TransbaseConfig.typeCast */
   setTypeCast(value: boolean): void;
 }
+
+export declare const SqlType = {
+  BOOL: number,
+  TINYINT: number,
+  SMALLINT: number,
+  INTEGER: number,
+  NUMERIC: number,
+  FLOAT: number,
+  DOUBLE: number,
+  CHAR: number,
+  VARCHAR: number,
+  BINARY: number,
+  BIT: number,
+  BLOB: number,
+  BITSHORT: number,
+  BIGINT: number,
+  CLOB: number,
+  DATE: number,
+  TIME: number,
+  TIMESTAMP: number,
+};
+
+export type SqlTypeName = keyof typeof SqlType;

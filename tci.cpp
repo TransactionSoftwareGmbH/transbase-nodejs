@@ -39,21 +39,7 @@ public:
 	static void Init(Napi::Env env, Napi::Object exports)
 	{
 		// define the js class wrapper
-		auto tci = DefineClass(env, "TCI", {
-											   InstanceMethod<&TCI::connect>("connect"),
-											   InstanceMethod<&TCI::executeDirect>("executeDirect"),
-											   InstanceMethod<&TCI::prepare>("prepare"),
-											   InstanceMethod<&TCI::execute>("execute"),
-											   InstanceMethod<&TCI::setParam>("setParam"),
-											   InstanceMethod<&TCI::fetch>("fetch"),
-											   InstanceMethod<&TCI::getState>("getState"),
-											   InstanceMethod<&TCI::getResultSetAttribute>("getResultSetAttribute"),
-											   InstanceMethod<&TCI::getResultSetStringAttribute>("getResultSetStringAttribute"),
-											   InstanceMethod<&TCI::getValue>("getValue"),
-											   InstanceMethod<&TCI::getQueryType>("getQueryType"),
-											   InstanceMethod<&TCI::close>("close"),
-											   InstanceMethod<&TCI::setTypeCast>("setTypeCast")
-										   });
+		auto tci = DefineClass(env, "TCI", {InstanceMethod<&TCI::connect>("connect"), InstanceMethod<&TCI::executeDirect>("executeDirect"), InstanceMethod<&TCI::prepare>("prepare"), InstanceMethod<&TCI::execute>("execute"), InstanceMethod<&TCI::setParam>("setParam"), InstanceMethod<&TCI::fetch>("fetch"), InstanceMethod<&TCI::getState>("getState"), InstanceMethod<&TCI::getResultSetAttribute>("getResultSetAttribute"), InstanceMethod<&TCI::getResultSetStringAttribute>("getResultSetStringAttribute"), InstanceMethod<&TCI::getValue>("getValue"), InstanceMethod<&TCI::getValueAsBuffer>("getValueAsBuffer"), InstanceMethod<&TCI::getQueryType>("getQueryType"), InstanceMethod<&TCI::close>("close"), InstanceMethod<&TCI::setTypeCast>("setTypeCast")});
 		exports.Set("TCI", tci);
 	}
 
@@ -239,17 +225,19 @@ public:
 		return Napi::Number::New(env, state);
 	}
 
-	Napi::Value getValue(TCIColumnnumber col, int sqlType)
+	Napi::Value getValue(TCIColumnnumber col, int sqlType, bool typeCast)
 	{
-		if(!typeCast){
-			switch (sqlType){
-				case TCI_SQL_BLOB:
-				case TCI_SQL_BINARY:
-				case TCI_SQL_BITSHORT:
-				case TCI_SQL_BIT:
-					return getBitsValue(col);
-				default:
-					return getStringValue(col);
+		if (!typeCast)
+		{
+			switch (sqlType)
+			{
+			case TCI_SQL_BLOB:
+			case TCI_SQL_BINARY:
+			case TCI_SQL_BITSHORT:
+			case TCI_SQL_BIT:
+				return getBitsValue(col);
+			default:
+				return getStringValue(col);
 			}
 		}
 
@@ -289,8 +277,18 @@ public:
 	{
 		TCIColumnnumber col = info[0].As<Napi::Number>().Uint32Value();
 		auto sqlType = info[1].As<Napi::Number>().Uint32Value();
-		isNull = 0;
-		auto value = getValue(col, sqlType);
+		auto typeCast = info.Length() == 3 ? info[2].As<Napi::Boolean>() : this->typeCast;
+		this->isNull = 0;
+		auto value = getValue(col, sqlType, typeCast);
+		return isNull ? env.Null() : value;
+	}
+
+	Napi::Value getValueAsBuffer(const Napi::CallbackInfo &info)
+	{
+		TCIColumnnumber col = info[0].As<Napi::Number>().Uint32Value();
+		auto bufferSize = info[1].As<Napi::Number>().Uint32Value();
+		this->isNull = 0;
+		Napi::Value value = getBufferValue(col, bufferSize); 
 		return isNull ? env.Null() : value;
 	}
 
@@ -342,9 +340,25 @@ public:
 	{
 		Int4 bitsSize;
 		tci(TCIGetDataSize(resultSet, colNumber, TCI_C_CHAR, &bitsSize, &isNull));
-		std::string str(bitsSize-2, '0');
+		std::string str(bitsSize - 2, '0');
 		tci(TCIGetData(resultSet, colNumber, str.data(), bitsSize, NULL, TCI_C_CHAR, &isNull));
-		return Napi::String::New(env, str);;
+		return Napi::String::New(env, str);
+		;
+	}
+
+	Napi::Value getBufferValue(TCIColumnnumber &colNumber, unsigned int &bufferSize)
+	{
+		Int4 byteSize;
+		auto buffer = Napi::Buffer<unsigned char>::New(env, bufferSize);
+		this->state = TCIGetData(resultSet, colNumber, buffer.Data(), bufferSize, &byteSize, TCI_C_CHAR, &isNull);
+		if(this->state != TCI_DATA_TRUNCATION){
+			tci(this->state); // error handling
+		}
+		if(bufferSize == byteSize){
+			return buffer;
+		}else{
+			return buffer.Copy(env,buffer.Data(),byteSize);
+		}
 	}
 
 	Napi::Value getStringValue(TCIColumnnumber &colNumber)
@@ -420,7 +434,29 @@ static void DefineConstants(Napi::Env env, Napi::Object exports)
 	state.Set("SUCCESS", TCI_SUCCESS);
 	state.Set("ERROR", TCI_ERROR);
 	state.Set("NO_DATA_FOUND", TCI_NO_DATA_FOUND);
+	state.Set("DATA_TRUNCATION", TCI_DATA_TRUNCATION);
 	exports.Set("State", state);
+
+	auto sqlType = Napi::Object::New(env);
+	sqlType.Set("BOOL", TCI_SQL_BOOL);
+	sqlType.Set("TINYINT", TCI_SQL_TINYINT);
+	sqlType.Set("SMALLINT", TCI_SQL_SMALLINT);
+	sqlType.Set("INTEGER", TCI_SQL_INTEGER);
+	sqlType.Set("NUMERIC", TCI_SQL_NUMERIC);
+	sqlType.Set("FLOAT", TCI_SQL_FLOAT);
+	sqlType.Set("DOUBLE", TCI_SQL_DOUBLE);
+	sqlType.Set("CHAR", TCI_SQL_CHAR);
+	sqlType.Set("VARCHAR", TCI_SQL_VARCHAR);
+	sqlType.Set("BINARY", TCI_SQL_BINARY);
+	sqlType.Set("BIT", TCI_SQL_BIT);
+	sqlType.Set("BLOB", TCI_SQL_BLOB);
+	sqlType.Set("BITSHORT", TCI_SQL_BITSHORT);
+	sqlType.Set("BIGINT", TCI_SQL_BIGINT);
+	sqlType.Set("CLOB", TCI_SQL_CLOB);
+	sqlType.Set("DATE", TCI_SQL_DATE);
+	sqlType.Set("TIME", TCI_SQL_TIME);
+	sqlType.Set("TIMESTAMP", TCI_SQL_TIMESTAMP);
+	exports.Set("SqlType", sqlType);
 }
 
 // Initialize native add-on
