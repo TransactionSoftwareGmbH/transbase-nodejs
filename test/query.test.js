@@ -300,32 +300,73 @@ describe("Transbase.query", () => {
       });
     });
 
+    const expected = {
+      a: "120",
+      b: "32000",
+      c: "2000111222",
+      d: "4000111222333",
+      e: "5.20",
+      f: "555.22",
+      g: "0110",
+      h: "Clob",
+      i: "Varchar(*)",
+      j: "Char(*)",
+      k: "String",
+      l: "0110",
+      m: "0110110",
+      n: "0110",
+      o: "true",
+      p: "2002-12",
+      q: "2002-12-24",
+      r: "17:35:10",
+      s: "2002-12-24 17:35:10.250",
+      t: "2-06",
+      u: "2:12:35",
+    };
+
     it("can select all values as plain strings (tci_c_char)", () => {
       try {
         client.setTypeCast(false);
         const resultSet = client.query(`select * from LEDGER_${UID}`);
-        assert.deepEqual(resultSet.toArray()[0], {
-          a: "120",
-          b: "32000",
-          c: "2000111222",
-          d: "4000111222333",
-          e: "5.20",
-          f: "555.22",
-          g: "0110",
-          h: "Clob",
-          i: "Varchar(*)",
-          j: "Char(*)",
-          k: "String",
-          l: "0110",
-          m: "0110110",
-          n: "0110",
-          o: "true",
-          p: "2002-12",
-          q: "2002-12-24",
-          r: "17:35:10",
-          s: "2002-12-24 17:35:10.250",
-          t: "2-06",
-          u: "2:12:35",
+        assert.deepEqual(resultSet.toArray()[0], expected);
+      } finally {
+        client.setTypeCast(true);
+      }
+    });
+
+    it("can select all types with readValueAsString", () => {
+      try {
+        const resultSet = client.query(`select * from LEDGER_${UID}`);
+        resultSet.fetch();
+        Object.entries(expected).forEach(([col, value]) => {
+          assert.equal(resultSet.readValueAsString(col), value);
+        });
+      } finally {
+        client.setTypeCast(true);
+      }
+    });
+
+    it("can select all types with readValueAsString with col number", () => {
+      try {
+        const resultSet = client.query(`select * from LEDGER_${UID}`);
+        resultSet.fetch();
+        Object.entries(expected).forEach(([_, value], index) => {
+          assert.equal(resultSet.readValueAsString(index + 1), value);
+        });
+      } finally {
+        client.setTypeCast(true);
+      }
+    });
+
+    it("can get all types as buffers", () => {
+      try {
+        const resultSet = client.query(`select * from LEDGER_${UID}`);
+        resultSet.fetch();
+        Object.entries(expected).forEach(([col, value]) => {
+          assert.deepEqual(
+            resultSet.readValueAsBuffer(col).data,
+            Buffer.from(value)
+          );
         });
       } finally {
         client.setTypeCast(true);
@@ -365,11 +406,11 @@ function hashRecordBuffered(resultSet) {
     if (typeName === "BLOB" || typeName === "CLOB") {
       let buffer = { hasMore: true };
       while (buffer.hasMore) {
-        buffer = resultSet.getValueAsBuffer(col, 8);
+        buffer = resultSet.readValueAsBuffer(col, 8);
         hash.update(buffer.data);
       }
     } else {
-      hash.update(resultSet.getValueAsString(col));
+      hash.update(resultSet.readValueAsString(col));
     }
   }
   return hash.digest("hex");

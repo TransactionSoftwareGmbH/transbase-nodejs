@@ -19,7 +19,7 @@ class ResultSet {
         get typeName() {
           return (Object.entries(SqlType).find(
             ([key, value]) => value === this.type
-          ) || ["UNKNOWN"])[0];
+          ) || ["TYPE(" + this.type + ")"])[0];
         },
       });
     }
@@ -40,16 +40,16 @@ class ResultSet {
     return this.tci.fetch();
   }
 
-  getValue(colNoOrName, typeCast = true) {
+  readValue(colNoOrName, typeCast = true) {
     const col = this.getColumn(colNoOrName);
     return this.tci.getValue(col.col, col.type, typeCast);
   }
 
-  getValueAsString(colNoOrName) {
-    return this.getValue(colNoOrName, false);
+  readValueAsString(colNoOrName) {
+    return this.readValue(colNoOrName, false);
   }
 
-  getValueAsBuffer(colNoOrName, size = 1024 * 1024) {
+  readValueAsBuffer(colNoOrName, size = 1024 * 1024) {
     const col = this.getColumn(colNoOrName);
     return {
       data: this.tci.getValueAsBuffer(col.col, size),
@@ -77,9 +77,9 @@ class ResultSet {
     return this.colInfos;
   }
 
-  getColumn(colNumberOrName) {
-    return typeof colNumberOrName === "number"
-      ? this.colInfos[colNumberOrName - 1]
+  getColumn(colNoOrName) {
+    return typeof colNoOrName === "number"
+      ? this.colInfos[colNoOrName - 1]
       : this.colInfos.find((it) => it.name === colNoOrName);
   }
 }

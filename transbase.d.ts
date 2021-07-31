@@ -48,12 +48,12 @@ export declare interface ResultSet<T = unknown> {
   getColumns(): ColInfo[];
   /** fetch the next record, use getValue or getValueAsString to retrieve data  */
   fetch(): boolean;
-  /** get value by column number starting with 1 or column name (respects typeCast option) */
-  getValue<R = Value>(colNumberOrName: number | string): R;
-  /** get value as string by column number starting with 1 or column name */
-  getValueAsString(colNumberOrName: number): string | null;
-  /** get value as buffer data chunk of given size by column number starting with 1 or column name */
-  getValueAsBuffer(
+  /** read value by column number starting with 1 or column name (respects typeCast option). NOT IDEMPOTENT! */
+  readValue<R = Value>(colNumberOrName: number | string): R;
+  /** read value as string by column number starting with 1 or column name. NOT IDEMPOTENT!*/
+  readValueAsString(colNumberOrName: number): string | null;
+  /** read value as buffer data chunk of given size by column number starting with 1 or column name. NOT IDEMPOTENT! */
+  readValueAsBuffer(
     colNumberOrName: number | string,
     size: number
   ): { data: Buffer; hasMore: boolean } | null;

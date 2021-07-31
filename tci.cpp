@@ -288,7 +288,7 @@ public:
 		TCIColumnnumber col = info[0].As<Napi::Number>().Uint32Value();
 		auto bufferSize = info[1].As<Napi::Number>().Uint32Value();
 		this->isNull = 0;
-		Napi::Value value = getBufferValue(col, bufferSize); 
+		Napi::Value value = getBufferValue(col, bufferSize);
 		return isNull ? env.Null() : value;
 	}
 
@@ -351,13 +351,17 @@ public:
 		Int4 byteSize;
 		auto buffer = Napi::Buffer<unsigned char>::New(env, bufferSize);
 		this->state = TCIGetData(resultSet, colNumber, buffer.Data(), bufferSize, &byteSize, TCI_C_CHAR, &isNull);
-		if(this->state != TCI_DATA_TRUNCATION){
+		if (this->state != TCI_DATA_TRUNCATION)
+		{
 			tci(this->state); // error handling
 		}
-		if(bufferSize == byteSize){
+		if (bufferSize == byteSize)
+		{
 			return buffer;
-		}else{
-			return buffer.Copy(env,buffer.Data(),byteSize);
+		}
+		else
+		{
+			return buffer.Copy(env, buffer.Data(), byteSize);
 		}
 	}
 
@@ -454,8 +458,56 @@ static void DefineConstants(Napi::Env env, Napi::Object exports)
 	sqlType.Set("BIGINT", TCI_SQL_BIGINT);
 	sqlType.Set("CLOB", TCI_SQL_CLOB);
 	sqlType.Set("DATE", TCI_SQL_DATE);
+	sqlType.Set("DATE_YEAR", TCI_SQL_DATE_YEAR);
+	sqlType.Set("DATE_YEAR_TO_MONTH", TCI_SQL_DATE_YEAR_TO_MONTH);
+	sqlType.Set("DATE_YEAR_TO_DAY", TCI_SQL_DATE_YEAR_TO_DAY);
+	sqlType.Set("DATE_YEAR_TO_HOUR", TCI_SQL_DATE_YEAR_TO_HOUR);
+	sqlType.Set("DATE_YEAR_TO_MINUTE", TCI_SQL_DATE_YEAR_TO_MINUTE);
+	sqlType.Set("DATE_YEAR_TO_SECOND", TCI_SQL_DATE_YEAR_TO_SECOND);
+	sqlType.Set("DATE_YEAR_TO_MILLISECOND", TCI_SQL_DATE_YEAR_TO_MILLISECOND);
+	sqlType.Set("DATE_MONTH", TCI_SQL_DATE_MONTH);
+	sqlType.Set("DATE_MONTH_TO_DAY", TCI_SQL_DATE_MONTH_TO_DAY);
+	sqlType.Set("DATE_MONTH_TO_HOUR", TCI_SQL_DATE_MONTH_TO_HOUR);
+	sqlType.Set("DATE_MONTH_TO_MINUTE", TCI_SQL_DATE_MONTH_TO_MINUTE);
+	sqlType.Set("DATE_MONTH_TO_SECOND", TCI_SQL_DATE_MONTH_TO_SECOND);
+	sqlType.Set("DATE_MONTH_TO_MILLISECOND", TCI_SQL_DATE_MONTH_TO_MILLISECOND);
+	sqlType.Set("DATE_DAY", TCI_SQL_DATE_DAY);
+	sqlType.Set("DATE_DAY_TO_HOUR", TCI_SQL_DATE_DAY_TO_HOUR);
+	sqlType.Set("DATE_DAY_TO_MINUTE", TCI_SQL_DATE_DAY_TO_MINUTE);
+	sqlType.Set("DATE_DAY_TO_SECOND", TCI_SQL_DATE_DAY_TO_SECOND);
+	sqlType.Set("DATE_DAY_TO_MILLISECOND", TCI_SQL_DATE_DAY_TO_MILLISECOND);
+	sqlType.Set("DATE_HOUR", TCI_SQL_DATE_HOUR);
+	sqlType.Set("DATE_HOUR_TO_MINUTE", TCI_SQL_DATE_HOUR_TO_MINUTE);
+	sqlType.Set("DATE_HOUR_TO_SECOND", TCI_SQL_DATE_HOUR_TO_SECOND);
+	sqlType.Set("DATE_HOUR_TO_MILLISECOND", TCI_SQL_DATE_HOUR_TO_MILLISECOND);
+	sqlType.Set("DATE_MINUTE", TCI_SQL_DATE_MINUTE);
+	sqlType.Set("DATE_MINUTE_TO_SECOND", TCI_SQL_DATE_MINUTE_TO_SECOND);
+	sqlType.Set("DATE_MINUTE_TO_MILLISECOND", TCI_SQL_DATE_MINUTE_TO_MILLISECOND);
+	sqlType.Set("DATE_SECOND", TCI_SQL_DATE_SECOND);
+	sqlType.Set("DATE_SECOND_TO_MILLISECOND", TCI_SQL_DATE_SECOND_TO_MILLISECOND);
+	sqlType.Set("DATE_MILLISECOND", TCI_SQL_DATE_MILLISECOND);
 	sqlType.Set("TIME", TCI_SQL_TIME);
 	sqlType.Set("TIMESTAMP", TCI_SQL_TIMESTAMP);
+	sqlType.Set("INTERVAL", TCI_SQL_TYPE_INTERVAL);
+	sqlType.Set("INTERVAL_YEAR", TCI_SQL_INTERVAL_YEAR);
+	sqlType.Set("INTERVAL_YEAR_TO_MONTH", TCI_SQL_INTERVAL_YEAR_TO_MONTH);
+	sqlType.Set("INTERVAL_MONTH", TCI_SQL_INTERVAL_MONTH);
+	sqlType.Set("INTERVAL_DAY", TCI_SQL_INTERVAL_DAY);
+	sqlType.Set("INTERVAL_DAY_TO_HOUR", TCI_SQL_INTERVAL_DAY_TO_HOUR);
+	sqlType.Set("INTERVAL_DAY_TO_MINUTE", TCI_SQL_INTERVAL_DAY_TO_MINUTE);
+	sqlType.Set("INTERVAL_DAY_TO_SECOND", TCI_SQL_INTERVAL_DAY_TO_SECOND);
+	sqlType.Set("INTERVAL_DAY_TO_MILLISECOND", TCI_SQL_INTERVAL_DAY_TO_MILLISECOND);
+	sqlType.Set("INTERVAL_HOUR", TCI_SQL_INTERVAL_HOUR);
+	sqlType.Set("INTERVAL_HOUR_TO_MINUTE", TCI_SQL_INTERVAL_HOUR_TO_MINUTE);
+	sqlType.Set("INTERVAL_HOUR_TO_SECOND", TCI_SQL_INTERVAL_HOUR_TO_SECOND);
+	sqlType.Set("INTERVAL_HOUR_TO_MILLISECOND", TCI_SQL_INTERVAL_HOUR_TO_MILLISECOND);
+	sqlType.Set("INTERVAL_MINUTE", TCI_SQL_INTERVAL_MINUTE);
+	sqlType.Set("INTERVAL_MINUTE_TO_SECOND", TCI_SQL_INTERVAL_MINUTE_TO_SECOND);
+	sqlType.Set("INTERVAL_MINUTE_TO_MILLISECOND", TCI_SQL_INTERVAL_MINUTE_TO_MILLISECOND);
+	sqlType.Set("INTERVAL_SECOND", TCI_SQL_INTERVAL_SECOND);
+	sqlType.Set("INTERVAL_SECOND_TO_MILLISECOND", TCI_SQL_INTERVAL_SECOND_TO_MILLISECOND);
+	sqlType.Set("INTERVAL_MILLISECOND", TCI_SQL_INTERVAL_MILLISECOND);
+
 	exports.Set("SqlType", sqlType);
 }
 

@@ -91,14 +91,14 @@ convenience method to get all rows as object array.
 
 get meta information of columns in this result set
 
-#### `getValue(colNumberOrName: number|string): any`
+#### `readValue(colNumberOrName: number|string): any`
 
-#### `getValueAsString(colNumberOrName: number|string): string | null`
+#### `readValueAsString(colNumberOrName: number|string): string | null`
 
-#### `getValueAsBuffer(colNumberOrName: number|string, size?: number): {data:Buffer, hasMore: boolean}`
+#### `readValueAsBuffer(colNumberOrName: number|string, size?: number): {data:Buffer, hasMore: boolean}`
 
 low level api methods to get column value as string or buffered data chunk.
-Column numbers start with 1! Use getValueAsBuffer when working with large BLOBS or CLOBS.
+Column numbers start with 1! Use readValueAsBuffer when working with large BLOBS or CLOBS.
 
 ## Type Mapping
 
