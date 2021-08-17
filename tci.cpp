@@ -286,7 +286,7 @@ public:
 	Napi::Value getValueAsBuffer(const Napi::CallbackInfo &info)
 	{
 		TCIColumnnumber col = info[0].As<Napi::Number>().Uint32Value();
-		auto bufferSize = info[1].As<Napi::Number>().Uint32Value();
+		auto bufferSize = info[1].As<Napi::Number>().Int32Value();
 		this->isNull = 0;
 		Napi::Value value = getBufferValue(col, bufferSize);
 		return isNull ? env.Null() : value;
@@ -346,7 +346,7 @@ public:
 		;
 	}
 
-	Napi::Value getBufferValue(TCIColumnnumber &colNumber, unsigned int &bufferSize)
+	Napi::Value getBufferValue(TCIColumnnumber &colNumber, Int4 &bufferSize)
 	{
 		Int4 byteSize;
 		auto buffer = Napi::Buffer<unsigned char>::New(env, bufferSize);

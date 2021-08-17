@@ -217,6 +217,28 @@ describe("Transbase.query", () => {
         .next();
       assert.ok(image);
       assert.ok(blob.equals(image));
+      const a = require("crypto").createHash("sha256");
+      a.update(image);
+      console.log(a.digest("hex"));
+    });
+
+    it("can read blob as buffer", () => {
+      const blob = require("fs").readFileSync("./README.md");
+      client.query(`insert into ${BLOB_TABLE} values (11, ?, null, null);`, [
+        blob,
+      ]);
+      const rs = client.query(`select image from ${BLOB_TABLE} where id = 11`);
+      rs.fetch();
+      let text = "";
+      let buffer = { hasMore: true };
+      while (buffer.hasMore) {
+        buffer = rs.readValueAsBuffer("image");
+        text += buffer.data.toString();
+      }
+      assert.equal(
+        blob.toString("utf8"),
+        Buffer.from(text, "hex").toString("utf8")
+      );
     });
 
     it("can insert and select clob values as string", () => {
@@ -228,6 +250,22 @@ describe("Transbase.query", () => {
         .query(`select text from ${BLOB_TABLE} where id = 2`)
         .next();
       assert.ok(clob);
+      assert.equal(clob, text);
+    });
+
+    it("can read clob as buffer", () => {
+      const clob = require("fs").readFileSync("./README.md").toString();
+      client.query(`insert into ${BLOB_TABLE} values (21, null, ?, null);`, [
+        clob,
+      ]);
+      const rs = client.query(`select text from ${BLOB_TABLE} where id = 21`);
+      rs.fetch();
+      let text = "";
+      let buffer = { hasMore: true };
+      while (buffer.hasMore) {
+        buffer = rs.readValueAsBuffer("text");
+        text += buffer.data;
+      }
       assert.equal(clob, text);
     });
 

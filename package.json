@@ -39,7 +39,7 @@
     "prerebuild": "cross-env TCI=${PWD}/.transbase node scripts/download",
     "rebuild": "cross-env TCI=${PWD}/.transbase node-gyp rebuild",
     "prebuild": "cross-env TCI=${PWD}/.transbase prebuild --runtime napi --all --include-regex \".(node|lib|so|dll)$\"",
-    "test": "mocha test/*.test.js --timeout 5000 --exit"
+    "test": "mocha test/*.test.js --timeout 10000 --exit"
   },
   "dependencies": {
     "bindings": "1.5.0",
