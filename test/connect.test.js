@@ -82,13 +82,4 @@ describe("Transbase Client", () => {
     );
   });
 
-  it("connect success", () => {
-    let client;
-    try {
-      client = new Transbase(config);
-      assert.equal(client != null, true);
-    } finally {
-      client.close();
-    }
-  });
 });
