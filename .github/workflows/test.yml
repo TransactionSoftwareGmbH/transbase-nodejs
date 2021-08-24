@@ -11,7 +11,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os:  [ubuntu-latest, windows-latest, macos-latest]
+        os: [ubuntu-latest, windows-latest, macos-latest]
     steps:
       - uses: actions/setup-node@v2
         with:
@@ -20,5 +20,5 @@ jobs:
       - run: npm ci --ignore-scripts
       - run: npm run rebuild
       - name: Test
-        if: matrix.os == 'windows-latest'
+        #if: matrix.os == 'windows-latest'
         run: npm test -- -H "${{secrets.DB_URL}}" -U "${{secrets.DB_USER}}" -P "${{secrets.DB_PWD}}"
