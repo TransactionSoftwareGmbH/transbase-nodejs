@@ -4,7 +4,7 @@
   "license": "MIT",
   "author": {
     "name": "Daniel Loibl",
-    "email": "daniel.loibl@gmail.com"
+    "email": "loibl@transaction.de"
   },
   "description": "A node.js driver for transbase",
   "main": "transbase.js",
