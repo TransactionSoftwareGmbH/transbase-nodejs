@@ -13,7 +13,7 @@ type ColInfo = {
   typeName: SqlTypeName;
 };
 
-interface TransbaseConfig {
+export interface TransbaseConfig {
   /** database connection string e.g. "ssl://<host>:<port>/<dbname>" */
   url: string;
   user: string;
@@ -74,7 +74,7 @@ export declare class Transbase {
    * create a new transbase database client
    * @param config defining the database url connecting to, logging in with the given user and password
    **/
-  new(config: TransbaseConfig): Transbase;
+  constructor(config: TransbaseConfig);
 
   /**
    * execute a query directly in auto-commit mode
@@ -82,10 +82,10 @@ export declare class Transbase {
    * @param params optional query paramters as an array of positional parameters or a key-value object for named parameters
    * @returns a ResetSet if the query has data to select or the number of affected records for insert,update statements
    **/
-  query<T = unknown, R = ResultSet<T> | number>(
+  query<T = unknown>(
     sql: string,
     params?: Params
-  ): R | undefined;
+  ): T extends number ?  number: ResultSet<T>  ;
 
   /** close connection and free resources */
   close(): void;
@@ -94,7 +94,7 @@ export declare class Transbase {
   setTypeCast(value: boolean): void;
 }
 
-export declare const SqlType = {
+export type SqlType = {
   BOOL: number,
   TINYINT: number,
   SMALLINT: number,
@@ -115,4 +115,5 @@ export declare const SqlType = {
   TIMESTAMP: number,
 };
 
-export type SqlTypeName = keyof typeof SqlType;
+export type SqlTypeName = keyof SqlType;
+
