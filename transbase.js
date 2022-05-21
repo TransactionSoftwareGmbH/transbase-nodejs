@@ -18,7 +18,7 @@ class ResultSet {
         type: Attributes.getColumnType(this.tci, col),
         get typeName() {
           return (Object.entries(SqlType).find(
-            ([key, value]) => value === this.type
+            ([_, value]) => value === this.type
           ) || ["TYPE(" + this.type + ")"])[0];
         },
       });
@@ -100,11 +100,16 @@ class Transbase {
    * @param config defining the database url connecting to, logging in with the given user and password
    **/
   constructor(config) {
+    this._connectionUrl = config.url;
     this.tci = new TCI();
     if (config && config.typeCast != null) {
       this.setTypeCast(config.typeCast);
     }
     this.tci.connect(config);
+  }
+
+  getConnectionUrl() {
+    return this._connectionUrl;
   }
 
   setTypeCast(value) {

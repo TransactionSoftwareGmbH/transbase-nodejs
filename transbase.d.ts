@@ -85,35 +85,36 @@ export declare class Transbase {
   query<T = unknown>(
     sql: string,
     params?: Params
-  ): T extends number ?  number: ResultSet<T>  ;
+  ): T extends number ? number : ResultSet<T>;
 
   /** close connection and free resources */
   close(): void;
 
   /** set typeCast conversion option @see TransbaseConfig.typeCast */
   setTypeCast(value: boolean): void;
+
+  getConnectionUrl(): string;
 }
 
 export type SqlType = {
-  BOOL: number,
-  TINYINT: number,
-  SMALLINT: number,
-  INTEGER: number,
-  NUMERIC: number,
-  FLOAT: number,
-  DOUBLE: number,
-  CHAR: number,
-  VARCHAR: number,
-  BINARY: number,
-  BIT: number,
-  BLOB: number,
-  BITSHORT: number,
-  BIGINT: number,
-  CLOB: number,
-  DATE: number,
-  TIME: number,
-  TIMESTAMP: number,
+  BOOL: number;
+  TINYINT: number;
+  SMALLINT: number;
+  INTEGER: number;
+  NUMERIC: number;
+  FLOAT: number;
+  DOUBLE: number;
+  CHAR: number;
+  VARCHAR: number;
+  BINARY: number;
+  BIT: number;
+  BLOB: number;
+  BITSHORT: number;
+  BIGINT: number;
+  CLOB: number;
+  DATE: number;
+  TIME: number;
+  TIMESTAMP: number;
 };
 
 export type SqlTypeName = keyof SqlType;
-
