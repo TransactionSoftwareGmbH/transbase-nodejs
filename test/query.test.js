@@ -304,7 +304,7 @@ describe("Transbase.query", () => {
           DATETIME(2002-12),
           DATE '2002-12-24',
           TIME '17:35:10',
-          TIMESTAMP '2002-12-24 17:35:10.025',
+          TIMESTAMP '2002-12-24 17:35:10.250',
           TIMESPAN[YY:MO](2-6), 
           INTERVAL '2:12:35' HOUR TO SECOND
           );

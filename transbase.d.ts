@@ -24,10 +24,9 @@ export interface TransbaseConfig {
    * options:
    * - true: convert values to native types (default)
    * - false: all column values as strings
-   * - just-blobs: only convert BLOB and CLOB to nodejs.Buffer
    * @default true
    */
-  typeCast?: boolean | "just-blobs";
+  typeCast?: boolean;
 }
 
 /**********************************
@@ -51,12 +50,14 @@ export declare interface ResultSet<T = unknown> {
   /** read value by column number starting with 1 or column name (respects typeCast option). NOT IDEMPOTENT! */
   readValue<R = Value>(colNumberOrName: number | string): R;
   /** read value as string by column number starting with 1 or column name. NOT IDEMPOTENT!*/
-  readValueAsString(colNumberOrName: number): string | null;
+  readValueAsString(colNumberOrName: number | string): string | null;
   /** read value as buffer data chunk of given size by column number starting with 1 or column name. NOT IDEMPOTENT! */
   readValueAsBuffer(
     colNumberOrName: number | string,
     size: number
   ): { data: Buffer; hasMore: boolean } | null;
+  /** return true if the given column number (starting with 1) or column name IS NULL */
+  isNull(colNumberOrName: number | string): boolnea;
 }
 
 /**********************************
@@ -79,12 +80,14 @@ export declare class Transbase {
   /**
    * execute a query directly in auto-commit mode
    * @param sql the sql query to execute
-   * @param params optional query paramters as an array of positional parameters or a key-value object for named parameters
+   * @param params optional query parameters as an array of positional parameters or a key-value object for named parameters
+   * @param options optional query execute options (e.g. typeCast)
    * @returns a ResetSet if the query has data to select or the number of affected records for insert,update statements
    **/
   query<T = unknown>(
     sql: string,
-    params?: Params
+    params?: Params,
+    options?: { typeCast?: boolean }
   ): T extends number ? number : ResultSet<T>;
 
   /** close connection and free resources */

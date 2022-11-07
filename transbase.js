@@ -57,6 +57,10 @@ class ResultSet {
     };
   }
 
+  isNull(colNoOrName) {
+    return this.tci.getIsNull(this.getColumn(colNoOrName));
+  }
+
   /** false if there is no further row to fetch (NO_DATA_FOUND) */
   hasNext() {
     return this.tci.getState() == State.SUCCESS;
@@ -112,7 +116,8 @@ class Transbase {
     return this._connectionUrl;
   }
 
-  setTypeCast(value) {
+  setTypeCast(value = true) {
+    this.typeCast = value;
     this.tci.setTypeCast(value);
   }
 
@@ -122,33 +127,39 @@ class Transbase {
    * @param params optional query paramters as an array of positional parameters or a key-value object for named parameters
    * @returns a ResetSet if the query has data to select or the number of affected records for insert,update statements
    **/
-  query(sql, parameters) {
-    if (!parameters) {
-      this.tci.executeDirect(sql);
-    } else {
-      this.tci.prepare(sql); // TODO: can we call prepare everytime?
-
-      if (Array.isArray(parameters)) {
-        parameters.forEach((value, index) => this.tci.setParam(index, value));
-      } else if (typeof parameters === "object") {
-        Object.entries(parameters).forEach(([name, value]) =>
-          this.tci.setParam(name, value)
-        );
-      } else {
-        throw Error(
-          "parametrized queries must either contain an array of positional parameters (?) or an key-value object of named parameters (:param) as second argument"
-        );
+  query(sql, parameters, options) {
+    try {
+      if (options?.typeCast != null) {
+        this.tci.setTypeCast(options.typeCast);
       }
-      this.tci.execute();
-    }
+      if (!parameters) {
+        this.tci.executeDirect(sql);
+      } else {
+        this.tci.prepare(sql); // TODO: can we call prepare everytime?
 
-    switch (this.tci.getQueryType()) {
-      case "UPDATE":
-        return Attributes.getRecordsTouched(this.tci);
-      case "SELECT":
-        return new ResultSet(this.tci);
-      case "SCHEMA":
-        return;
+        if (Array.isArray(parameters)) {
+          parameters.forEach((value, index) => this.tci.setParam(index, value));
+        } else if (typeof parameters === "object") {
+          Object.entries(parameters).forEach(([name, value]) =>
+            this.tci.setParam(name, value)
+          );
+        } else {
+          throw Error(
+            "parametrized queries must either contain an array of positional parameters (?) or an key-value object of named parameters (:param) as second argument"
+          );
+        }
+        this.tci.execute();
+      }
+      switch (this.tci.getQueryType()) {
+        case "UPDATE":
+          return Attributes.getRecordsTouched(this.tci);
+        case "SELECT":
+          return new ResultSet(this.tci);
+        case "SCHEMA":
+          return;
+      }
+    } finally {
+      this.setTypeCast(this.typeCast);
     }
   }
 

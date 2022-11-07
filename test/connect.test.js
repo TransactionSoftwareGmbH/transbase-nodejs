@@ -81,5 +81,4 @@ describe("Transbase Client", () => {
       /login failed/
     );
   });
-
 });

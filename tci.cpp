@@ -57,7 +57,8 @@ public:
 			InstanceMethod<&TCI::setTypeCast>("setTypeCast"),
 			InstanceMethod<&TCI::beginTransaction>("beginTransaction"),
 			InstanceMethod<&TCI::commit>("commit"),
-			InstanceMethod<&TCI::rollback>("rollback")});
+			InstanceMethod<&TCI::rollback>("rollback"),
+			InstanceMethod<&TCI::getIsNull>("getIsNull")});
 		exports.Set("TCI", tci);
 	}
 
@@ -377,7 +378,6 @@ public:
 		std::string str(bitsSize - 2, '0');
 		tci(TCIGetData(resultSet, colNumber, str.data(), bitsSize, NULL, TCI_C_CHAR, &isNull));
 		return Napi::String::New(env, str);
-		;
 	}
 
 	Napi::Value getBufferValue(TCIColumnnumber &colNumber, Int4 &bufferSize)
@@ -414,6 +414,14 @@ public:
 		std::string str(charLength, ' ');
 		tci(TCIGetData(resultSet, colNumber, str.data(), size, NULL, TCI_C_CHAR, &isNull));
 		return Napi::String::New(env, str);
+	}
+
+	Napi::Value getIsNull(const Napi::CallbackInfo &info)
+	{
+		TCIColumnnumber colNumber = info[0].As<Napi::Number>().Uint32Value();
+		Int4 byteSize;
+		tci(TCIGetDataSize(resultSet, colNumber, TCI_C_CHAR, &byteSize, &isNull));
+		return Napi::Boolean::New(env, isNull ? true: false);
 	}
 
 	void close(const Napi::CallbackInfo &info)
