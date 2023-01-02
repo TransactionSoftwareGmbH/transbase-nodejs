@@ -94,6 +94,15 @@ export declare class Transbase {
   setTypeCast(value: boolean): void;
 
   getConnectionUrl(): string;
+
+  /** commit transaction */
+  commit(): void;
+  /** rollback transaction */
+  rollback(): void;
+  /**
+   * begin a new transaction, which has to be explicitly committed.
+   * calling this will leave auto commit mode */
+  beginTransaction(): void;
 }
 
 export type SqlType = {

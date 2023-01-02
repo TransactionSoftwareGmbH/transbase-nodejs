@@ -100,7 +100,7 @@ class Transbase {
    * @param config defining the database url connecting to, logging in with the given user and password
    **/
   constructor(config) {
-    this._connectionUrl = config.url;
+    this._connectionUrl = config?.url;
     this.tci = new TCI();
     if (config && config.typeCast != null) {
       this.setTypeCast(config.typeCast);
@@ -150,6 +150,18 @@ class Transbase {
       case "SCHEMA":
         return;
     }
+  }
+
+  beginTransaction() {
+    this.tci.beginTransaction();
+  }
+
+  commit() {
+    this.tci.commit();
+  }
+
+  rollback() {
+    this.tci.rollback();
   }
 
   /** close connection and free resources */

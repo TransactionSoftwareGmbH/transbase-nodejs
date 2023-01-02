@@ -17,6 +17,7 @@ private:
 	TCIError *error = NULL;
 	TCIEnvironment *environment = NULL;
 	TCIConnection *connection = NULL;
+	TCITransaction *transaction = NULL;
 	TCIStatement *statement = NULL;
 	TCIResultSet *resultSet = NULL;
 	Char sqlcode[5];
@@ -39,7 +40,24 @@ public:
 	static void Init(Napi::Env env, Napi::Object exports)
 	{
 		// define the js class wrapper
-		auto tci = DefineClass(env, "TCI", {InstanceMethod<&TCI::connect>("connect"), InstanceMethod<&TCI::executeDirect>("executeDirect"), InstanceMethod<&TCI::prepare>("prepare"), InstanceMethod<&TCI::execute>("execute"), InstanceMethod<&TCI::setParam>("setParam"), InstanceMethod<&TCI::fetch>("fetch"), InstanceMethod<&TCI::getState>("getState"), InstanceMethod<&TCI::getResultSetAttribute>("getResultSetAttribute"), InstanceMethod<&TCI::getResultSetStringAttribute>("getResultSetStringAttribute"), InstanceMethod<&TCI::getValue>("getValue"), InstanceMethod<&TCI::getValueAsBuffer>("getValueAsBuffer"), InstanceMethod<&TCI::getQueryType>("getQueryType"), InstanceMethod<&TCI::close>("close"), InstanceMethod<&TCI::setTypeCast>("setTypeCast")});
+		auto tci = DefineClass(env, "TCI", {
+			InstanceMethod<&TCI::connect>("connect"), 
+			InstanceMethod<&TCI::executeDirect>("executeDirect"), 
+			InstanceMethod<&TCI::prepare>("prepare"), 
+			InstanceMethod<&TCI::execute>("execute"), 
+			InstanceMethod<&TCI::setParam>("setParam"), 
+			InstanceMethod<&TCI::fetch>("fetch"), 
+			InstanceMethod<&TCI::getState>("getState"), 
+			InstanceMethod<&TCI::getResultSetAttribute>("getResultSetAttribute"), 
+			InstanceMethod<&TCI::getResultSetStringAttribute>("getResultSetStringAttribute"), 
+			InstanceMethod<&TCI::getValue>("getValue"), 
+			InstanceMethod<&TCI::getValueAsBuffer>("getValueAsBuffer"), 
+			InstanceMethod<&TCI::getQueryType>("getQueryType"), 
+			InstanceMethod<&TCI::close>("close"), 
+			InstanceMethod<&TCI::setTypeCast>("setTypeCast"),
+			InstanceMethod<&TCI::beginTransaction>("beginTransaction"),
+			InstanceMethod<&TCI::commit>("commit"),
+			InstanceMethod<&TCI::rollback>("rollback")});
 		exports.Set("TCI", tci);
 	}
 
@@ -69,6 +87,7 @@ public:
 		}
 
 		tci(TCIAllocConnection(environment, error, &connection));
+		tci(TCIAllocTransaction(environment, error, &transaction));
 		tci(TCIConnect(connection, &url[0]));
 		tci(TCILogin(connection, &user[0], &password[0]));
 		tci(TCIAllocStatement(connection, error, &statement));
@@ -100,6 +119,21 @@ public:
 	void setParam(const Napi::CallbackInfo &info)
 	{
 		setData(info[0], info[1]);
+	}
+
+	void beginTransaction(const Napi::CallbackInfo &info)
+	{
+		tci(TCIBeginTransaction(transaction, connection));
+	}
+
+	void commit(const Napi::CallbackInfo &info)
+	{
+		tci(TCICommitTransaction(transaction));
+	}
+
+	void rollback(const Napi::CallbackInfo &info)
+	{
+		tci(TCIRollbackTransaction(transaction));
 	}
 
 	void setData(Napi::Value nameOrPosition, Napi::Value value)
@@ -393,6 +427,8 @@ public:
 			TCIFreeResultSet(resultSet);
 		if (statement)
 			TCIFreeStatement(statement);
+		if(transaction)
+			TCIFreeTransaction(transaction);	
 		if (connection)
 			TCIFreeConnection(connection);
 		if (error)
