@@ -58,7 +58,7 @@ class ResultSet {
   }
 
   isNull(colNoOrName) {
-    return this.tci.getIsNull(this.getColumn(colNoOrName));
+    return this.tci.getIsNull(this.getColumn(colNoOrName).col);
   }
 
   /** false if there is no further row to fetch (NO_DATA_FOUND) */

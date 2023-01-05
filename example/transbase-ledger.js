@@ -85,14 +85,6 @@ class TransbaseLedger {
     );
   }
 
-  /**
-   * Hashes two intermediate nodes of the Merkle-Tree returning the hash of the
-   * corresponding parent node
-   *
-   * @param first {Buffer} intermediate node
-   * @param second {Buffer} intermediate node
-   * @return Buffer the hash of the resulting parent node
-   */
   static hashLedgerNodes(first, second) {
     const hash = crypto.createHash("sha256");
     hash.update(Buffer.from([1]));

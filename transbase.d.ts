@@ -108,60 +108,6 @@ export declare class Transbase {
   beginTransaction(): void;
 }
 
-export declare class TransbaseLedger {
-  /**
-   * Computes the hash of a record
-   *
-   * @param res the resultset representing the record
-   * @return byte[] the resulting record hash
-   */
-  static hashLedgerRecord(res: ResultSet): Buffer;
-
-  /**
-   * Verifies that a record is included in a specific ledger and that the record
-   * was not modified since it was inserted
-   *
-   * @param conn the Transbase database connection
-   * @param data data to verify
-   * - ledgerHash if the last computed hash does not equal the ledger hash the proof fails
-   * - ledgerIdx first input parameter for function ledger_audit_proof()
-   * - recordId second input parameter for function ledger_audit_proof()
-   * - recordHash start value of the verification
-   * @return boolean true, if the verification succeeds
-   */
-  static verifyAuditProof(
-    transbase: Transbase,
-    data: {
-      ledgerHash: Buffer;
-      ledgerIdx: number;
-      recordId: Buffer;
-      recordHash: Buffer;
-    }
-  ): boolean;
-
-  /**
-   * Verifies that an older state of the ledger is still included in a younger
-   * version of the ledger
-   *
-   * @param conn the Transbase database connection
-   * @param data to verify:
-   * - ledgerHashOld if the last computed hash for the old state does not equal the old ledger hash the proof fails
-   * - ledgerIdxOld first input parameter for function ledger_consistency_proof()
-   * - ledgerHashNew if the last computed hash for the new state does not equal the new ledger hash the proof fails
-   * - ledgerIdxNew second input parameter for function ledger_consistency_proof()
-   * @return boolean true, if the verification succeeds
-   */
-  static verifyConsistencyProof(
-    transbase: Transbase,
-    data: {
-      ledgerHashOld: Buffer;
-      ledgerIdxOld: number;
-      ledgerHashNew: Buffer;
-      ledgerIdxNew: number;
-    }
-  ): boolean;
-}
-
 export type SqlType = {
   BOOL: number;
   TINYINT: number;

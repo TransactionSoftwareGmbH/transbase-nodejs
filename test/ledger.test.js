@@ -1,47 +1,7 @@
 const assert = require("assert").strict;
-const { Transbase } = require("../transbase");
-const { TransbaseLedger } = require("../transbase-ledger");
-const config = require("./config");
+const { TransbaseLedger } = require("../example/transbase-ledger");
 
 describe("TransbaseLedger", () => {
-  const UID = String(Math.random()).substring(2, 12);
-  let client;
-
-  // before(() => {
-  //   client = new Transbase(config);
-  //   client.query(`create table LEDGER_${UID} (
-  //     a TINYINT,
-  //     b SMALLINT,
-  //     c INTEGER,
-  //     d BIGINT,
-  //     e NUMERIC(5,2),
-  //     f DECIMAL(5,2),
-  //     g BLOB,
-  //     h CLOB,
-  //     i VARCHAR(*),
-  //     j CHAR(*) ,
-  //     k STRING,
-  //     l BINCHAR (*),
-  //     m BITS (*),
-  //     n BITS2 (*),
-  //     o BOOL,
-  //     p DATETIME[YY:MO],
-  //     q DATE,
-  //     r TIME,
-  //     s TIMESTAMP,
-  //     t TIMESPAN[YY:MO],
-  //     u INTERVAL HOUR TO SECOND
-  //     )`);
-  // });
-
-  // after(() => {
-  //   try {
-  //     client.query(`DROP TABLE LEDGER_${UID}`);
-  //   } finally {
-  //     client.close();
-  //   }
-  // });
-
   it("can hash ledger nodes", () => {
     assert.equal(
       TransbaseLedger.hashLedgerNodes(

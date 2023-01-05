@@ -102,22 +102,6 @@ get meta information of columns in this result set
 low level api methods to get column value as string or buffered data chunk.
 Column numbers start with 1! Use readValueAsBuffer when working with large BLOBS or CLOBS.
 
-#### `class TransbaseLedger`
-
-Utilities for Transbase Ledger (TODO: insert documentation link)
-
-#### `static hashLedgerRecord(res: ResultSet): Buffer`
-
-Computes the hash of a record given by the ResultSet of fetched query.
-
-#### `static verifyAuditProof(transbase: Transbase, data: {ledgerHash: Buffer; ledgerIdx: number; recordId: Buffer; recordHash: Buffer }): boolean`
-
-Verifies that a record is included in a specific ledger and that the record was not modified since it was inserted
-
-#### `static verifyConsistencyProof(transbase: Transbase, data: {ledgerHashOld: Buffer; ledgerIdxOld: number; ledgerHashNew: Buffer; ledgerIdxNew: number}): boolean`
-
-Verifies that an older state of the ledger is still included in a younger version of the ledger
-
 ## Type Mapping
 
 By default sql types are mapped to native js types wherever possible.
@@ -143,8 +127,6 @@ Set `typeCast` option to false in config object, or use `setTypeCast(value)` to 
 | VARBINARY      | Buffer            |
 | BLOB           | Buffer            |
 | BITS           | string (bits)     |
-
-## Transbase Ledger
 
 ## Contribution
 
