@@ -156,7 +156,8 @@ class Transbase {
         case "SELECT":
           return new ResultSet(this.tci);
         case "SCHEMA":
-          return;
+        default:
+          return this.tci.getState();
       }
     } finally {
       this.setTypeCast(this.typeCast);

@@ -82,7 +82,7 @@ export declare class Transbase {
    * @param sql the sql query to execute
    * @param params optional query parameters as an array of positional parameters or a key-value object for named parameters
    * @param options optional query execute options (e.g. typeCast)
-   * @returns a ResetSet if the query has data to select or the number of affected records for insert,update statements
+   * @returns a ResultSet if the query has data to select or the number of affected records for insert,update statements
    **/
   query<T = unknown>(
     sql: string,
