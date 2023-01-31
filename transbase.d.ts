@@ -106,6 +106,9 @@ export declare class Transbase {
    * begin a new transaction, which has to be explicitly committed.
    * calling this will leave auto commit mode */
   beginTransaction(): void;
+
+  /** get transbase client and server version info */
+  getVersionInfo(): { client: string; server: string };
 }
 
 export type SqlType = {

@@ -10,7 +10,7 @@
               "OS==\"mac\"",
               {
                 "files": [
-                  "$(TCI)/lib/libtci.dylib"
+                  "$(TCI)/bin/libtci.dylib"
                 ]
               }
             ],
@@ -18,7 +18,7 @@
               "OS==\"linux\"",
               {
                 "files": [
-                  "$(TCI)/lib/libtci.so"
+                  "$(TCI)/bin/libtci.so"
                 ]
               }
             ],
@@ -26,7 +26,7 @@
               "OS==\"win\"",
               {
                 "files": [
-                  "$(TCI)/lib/tci.dll"
+                  "$(TCI)/bin/tci.dll"
                 ]
               }
             ]

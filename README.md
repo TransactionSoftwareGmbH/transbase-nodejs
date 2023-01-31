@@ -102,6 +102,10 @@ get meta information of columns in this result set
 low level api methods to get column value as string or buffered data chunk.
 Column numbers start with 1! Use readValueAsBuffer when working with large BLOBS or CLOBS.
 
+### `getVersionInfo(): { client: string; server: string }`
+
+retrieve version information of transbase tci client and database server
+
 ## Type Mapping
 
 By default sql types are mapped to native js types wherever possible.

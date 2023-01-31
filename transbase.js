@@ -112,6 +112,17 @@ class Transbase {
     this.tci.connect(config);
   }
 
+  getVersionInfo() {
+    const version = this.tci.getVersionInfo();
+    function toString(v) {
+      return `${v.major}.${v.minor}.${v.release}.${v.patch}.${v.build}`;
+    }
+    return {
+      client: toString(version.client),
+      server: toString(version.server),
+    };
+  }
+
   getConnectionUrl() {
     return this._connectionUrl;
   }

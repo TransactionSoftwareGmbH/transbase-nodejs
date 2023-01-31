@@ -40,25 +40,25 @@ public:
 	static void Init(Napi::Env env, Napi::Object exports)
 	{
 		// define the js class wrapper
-		auto tci = DefineClass(env, "TCI", {
-			InstanceMethod<&TCI::connect>("connect"), 
-			InstanceMethod<&TCI::executeDirect>("executeDirect"), 
-			InstanceMethod<&TCI::prepare>("prepare"), 
-			InstanceMethod<&TCI::execute>("execute"), 
-			InstanceMethod<&TCI::setParam>("setParam"), 
-			InstanceMethod<&TCI::fetch>("fetch"), 
-			InstanceMethod<&TCI::getState>("getState"), 
-			InstanceMethod<&TCI::getResultSetAttribute>("getResultSetAttribute"), 
-			InstanceMethod<&TCI::getResultSetStringAttribute>("getResultSetStringAttribute"), 
-			InstanceMethod<&TCI::getValue>("getValue"), 
-			InstanceMethod<&TCI::getValueAsBuffer>("getValueAsBuffer"), 
-			InstanceMethod<&TCI::getQueryType>("getQueryType"), 
-			InstanceMethod<&TCI::close>("close"), 
-			InstanceMethod<&TCI::setTypeCast>("setTypeCast"),
-			InstanceMethod<&TCI::beginTransaction>("beginTransaction"),
-			InstanceMethod<&TCI::commit>("commit"),
-			InstanceMethod<&TCI::rollback>("rollback"),
-			InstanceMethod<&TCI::getIsNull>("getIsNull")});
+		auto tci = DefineClass(env, "TCI", {InstanceMethod<&TCI::connect>("connect"),										  //
+											InstanceMethod<&TCI::executeDirect>("executeDirect"),							  //
+											InstanceMethod<&TCI::prepare>("prepare"),										  //
+											InstanceMethod<&TCI::execute>("execute"),										  //
+											InstanceMethod<&TCI::setParam>("setParam"),										  //
+											InstanceMethod<&TCI::fetch>("fetch"),											  //
+											InstanceMethod<&TCI::getState>("getState"),										  //
+											InstanceMethod<&TCI::getResultSetAttribute>("getResultSetAttribute"),			  //
+											InstanceMethod<&TCI::getResultSetStringAttribute>("getResultSetStringAttribute"), //
+											InstanceMethod<&TCI::getValue>("getValue"),										  //
+											InstanceMethod<&TCI::getValueAsBuffer>("getValueAsBuffer"),						  //
+											InstanceMethod<&TCI::getQueryType>("getQueryType"),								  //
+											InstanceMethod<&TCI::close>("close"),											  //
+											InstanceMethod<&TCI::setTypeCast>("setTypeCast"),								  //
+											InstanceMethod<&TCI::beginTransaction>("beginTransaction"),						  //
+											InstanceMethod<&TCI::commit>("commit"),											  //
+											InstanceMethod<&TCI::rollback>("rollback"),										  //
+											InstanceMethod<&TCI::getIsNull>("getIsNull"),									  //
+											InstanceMethod<&TCI::getVersionInfo>("getVersionInfo")});
 		exports.Set("TCI", tci);
 	}
 
@@ -229,6 +229,30 @@ public:
 		Uint2 value = 0;
 		tci(TCIGetResultSetAttribute(resultSet, attrKey, col, &value, sizeof(value), NULL));
 		return value;
+	}
+
+	Napi::Value getVersionInfo(const Napi::CallbackInfo &info)
+	{
+		TCIVersion clientVersion;
+		tci(TCIGetEnvironmentAttribute(environment, TCI_ATTR_VERSION, 1, &clientVersion, sizeof(clientVersion), NULL));
+		TCIVersion serverVersion;
+		tci(TCIGetConnectionAttribute(connection, TCI_ATTR_VERSION, 1, &serverVersion, sizeof(serverVersion), NULL));
+
+		auto version = Napi::Object::New(env);
+		version.Set("client", toVersion(clientVersion));
+		version.Set("server", toVersion(serverVersion));
+		return version;
+	}
+
+	Napi::Value toVersion(TCIVersion &version)
+	{
+		auto result = Napi::Object::New(env);
+		result.Set("major", version.major_version);
+		result.Set("minor", version.minor_version);
+		result.Set("release", version.release);
+		result.Set("patch", version.patch);
+		result.Set("build", version.build);
+		return result;
 	}
 
 	Napi::Value getResultSetStringAttribute(const Napi::CallbackInfo &info)
@@ -421,7 +445,7 @@ public:
 		TCIColumnnumber colNumber = info[0].As<Napi::Number>().Uint32Value();
 		Int4 byteSize;
 		tci(TCIGetDataSize(resultSet, colNumber, TCI_C_CHAR, &byteSize, &isNull));
-		return Napi::Boolean::New(env, isNull ? true: false);
+		return Napi::Boolean::New(env, isNull ? true : false);
 	}
 
 	void close(const Napi::CallbackInfo &info)
@@ -435,8 +459,8 @@ public:
 			TCIFreeResultSet(resultSet);
 		if (statement)
 			TCIFreeStatement(statement);
-		if(transaction)
-			TCIFreeTransaction(transaction);	
+		if (transaction)
+			TCIFreeTransaction(transaction);
 		if (connection)
 			TCIFreeConnection(connection);
 		if (error)

@@ -7,8 +7,11 @@ describe("Transbase.query", () => {
   let client;
 
   const TABLE = `cashbook_${UID}`;
+  const TABLE_TX = `test_tx_${UID}`;
+
   before(() => {
     client = new Transbase(config);
+    console.log();
     const insert = (values) => `insert into ${TABLE} ${values}`;
     client.query(`create table ${TABLE}
       (
@@ -52,10 +55,18 @@ describe("Transbase.query", () => {
     try {
       client.query(`DROP TABLE ${TABLE};`);
       client.query(`DROP TABLE LEDGER_${UID}`);
+      client.query(`DROP TABLE ${TABLE_TX}`);
     } finally {
       console.log("shutting down");
       client.close();
     }
+  });
+
+  it("can get client and server version", () => {
+    const version = client.getVersionInfo();
+    console.log(version);
+    assert.ok(version.client.startsWith("8"));
+    assert.ok(version.server.startsWith("8"));
   });
 
   describe("select", () => {
@@ -426,6 +437,53 @@ describe("Transbase.query", () => {
       assert.equal(
         hashRecordBuffered(rs),
         "e84b812c3d611dad03dbcf6d6954a2d618b1f11b748690fcf27b40d869acf68f"
+      );
+    });
+  });
+
+  it("can create and call a persisted stored method", () => {
+    const client = new Transbase(config);
+    try {
+      client.query("drop function hello");
+    } catch (ignore) {}
+    let result = client.query(`
+    create function hello() returns string as
+    begin
+      return select tname from systable first(1);
+    end;
+    `);
+    assert.equal(0, result);
+
+    result = client.query("select hello();");
+    assert.equal(1, result.toArray().length);
+  });
+
+  describe("transaction", () => {
+    it("can rollback transaction", () => {
+      const client = new Transbase(config);
+      client.beginTransaction();
+      client.query(`create table ${TABLE_TX} (nr integer);`);
+      client.rollback();
+      assert.ok(
+        !client
+          .query("select tname from systable")
+          .toArray()
+          .map((it) => it.tname)
+          .includes(TABLE_TX)
+      );
+    });
+
+    it("can commit transaction", () => {
+      const client = new Transbase(config);
+      client.beginTransaction();
+      client.query(`create table ${TABLE_TX} (nr integer);`);
+      client.commit();
+      assert.ok(
+        client
+          .query("select tname from systable")
+          .toArray()
+          .map((it) => it.tname)
+          .includes(TABLE_TX)
       );
     });
   });

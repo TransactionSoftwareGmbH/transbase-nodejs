@@ -6,10 +6,13 @@ const request = require("request");
 const zlib = require("zlib");
 const tar = require("tar");
 
-const outDir = process.env.TCI;
+const outDir = process.env.TCI || ".transbase";
 const version = require("../package.json").transbaseVersion;
+const [major, minor, _] = version.split(".");
+
 const downloadUrl = (os = getPlatform()) =>
-  `https://www.transaction.de/transbase/${version}/${os.platform}_${os.arch}/sdk/transbase-${version}_${os.platform}_${os.arch}_sdk.tgz`;
+  `https://www.transaction.de/downloads/transbase/${major}.${minor}/${os.platform}/${os.arch}/transbase_dev.tar.Z`;
+
 function checkSdkDownload() {
   // skip if already downloaded
   if (fs.existsSync(path.join(outDir, "include", "tci.h"))) {
@@ -35,7 +38,7 @@ function checkVersion(dir) {
 }
 
 function getPlatform() {
-  const arch = process.arch;
+  const arch = process.arch === "x64" ? "x86_64" : "x86";
   switch (process.platform) {
     case "win32":
       return { platform: "windows", arch };
@@ -57,5 +60,10 @@ if (checkSdkDownload()) {
   request(downloadUrl())
     .on("error", console.error)
     .pipe(zlib.Unzip())
-    .pipe(tar.x({ C: outDir }));
+    .pipe(
+      tar.x({
+        cwd: outDir,
+        filter: (path) => path.includes("tci"),
+      })
+    );
 }
