@@ -456,17 +456,32 @@ public:
 	void free()
 	{
 		if (resultSet)
+		{
+			TCIClose(resultSet);
 			TCIFreeResultSet(resultSet);
+		}
 		if (statement)
+		{
 			TCIFreeStatement(statement);
+		}
 		if (transaction)
+		{
 			TCIFreeTransaction(transaction);
+		}
 		if (connection)
+		{
+			TCILogout(connection);
+			TCIDisconnect(connection);
 			TCIFreeConnection(connection);
+		}
 		if (error)
+		{
 			TCIFreeError(error);
+		}
 		if (environment)
+		{
 			TCIFreeEnvironment(environment);
+		}
 	}
 
 	void tci(TCIState state)
