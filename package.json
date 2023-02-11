@@ -36,19 +36,19 @@
   "types": "./transbase.d.ts",
   "scripts": {
     "install": "prebuild-install --runtime napi || npm run rebuild",
-    "prerebuild": "cross-env TCI=${PWD}/.transbase node scripts/download",
-    "rebuild": "cross-env TCI=${PWD}/.transbase node-gyp rebuild",
-    "prebuild": "cross-env TCI=${PWD}/.transbase prebuild --runtime napi --all --include-regex \".(node|lib|so|dll)$\"",
+    "prerebuild": "node scripts/download",
+    "rebuild": "node-gyp rebuild",
+    "prebuild": "prebuild --runtime napi --all --include-regex \".(node|lib|so|dll)$\"",
     "test": "mocha test/*.test.js --timeout 10000 --exit"
   },
   "dependencies": {
-    "bindings": "1.5.0",
-    "node-addon-api": "3.0.2",
-    "prebuild-install": "^6.0.0"
+    "bindings": "^1.5.0",
+    "node-addon-api": "^6.0.0",
+    "prebuild-install": "^7.1.1",
+    "tar": "^6.1.13"
   },
   "devDependencies": {
-    "cross-env": "^7.0.3",
-    "mocha": "^8.2.1",
-    "prebuild": "^10.0.1"
+    "mocha": "^10.2.0",
+    "prebuild": "^11.0.4"
   }
 }

@@ -6,7 +6,7 @@ const request = require("request");
 const zlib = require("zlib");
 const tar = require("tar");
 
-const outDir = process.env.TCI || ".transbase";
+const outDir = process.env.PWD + "/.transbase";
 const version = require("../package.json").transbaseVersion;
 const [major, minor, _] = version.split(".");
 
@@ -61,7 +61,7 @@ if (checkSdkDownload()) {
     .on("error", console.error)
     .pipe(zlib.Unzip())
     .pipe(
-      tar.x({
+      tar.extract({
         cwd: outDir,
         filter: (path) => path.includes("tci"),
       })
