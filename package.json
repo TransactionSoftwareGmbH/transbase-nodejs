@@ -1,6 +1,6 @@
 {
   "name": "@transaction/transbase-nodejs",
-  "version": "0.0.10",
+  "version": "0.0.11",
   "license": "MIT",
   "author": {
     "name": "Daniel Loibl",
