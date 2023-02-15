@@ -6,7 +6,7 @@ const request = require("request");
 const zlib = require("zlib");
 const tar = require("tar");
 
-const outDir = process.env.PWD + "/.transbase";
+const outDir = path.join(process.cwd(), ".transbase");
 const version = require("../package.json").transbaseVersion;
 const [major, minor, _] = version.split(".");
 

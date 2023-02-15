@@ -31,7 +31,9 @@
     "package.json",
     "example/package.json",
     "example/index.js",
-    "transbase.d.ts"
+    "transbase.d.ts",
+    ".transbase/index.js",
+    "scripts/download.js"
   ],
   "types": "./transbase.d.ts",
   "scripts": {
@@ -45,6 +47,7 @@
     "bindings": "^1.5.0",
     "node-addon-api": "^6.0.0",
     "prebuild-install": "^7.1.1",
+    "request": "^2.88.2",
     "tar": "^6.1.13"
   },
   "devDependencies": {

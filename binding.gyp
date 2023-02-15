@@ -5,32 +5,7 @@
       "type": "none",
       "copies": [
         {
-          "conditions": [
-            [
-              "OS==\"mac\"",
-              {
-                "files": [
-                  "$(PWD)/.transbase/bin/libtci.dylib"
-                ]
-              }
-            ],
-            [
-              "OS==\"linux\"",
-              {
-                "files": [
-                  "$(PWD)/.transbase/bin/libtci.so"
-                ]
-              }
-            ],
-            [
-              "OS==\"win\"",
-              {
-                "files": [
-                  "$(PWD)/.transbase/bin/tci.dll"
-                ]
-              }
-            ]
-          ],
+          "files": ["<!@(node -p \"require('./.transbase').bin\")"],
           "destination": "<(PRODUCT_DIR)"
         }
       ]
@@ -51,10 +26,10 @@
       ],
       "include_dirs": [
         "<!@(node -p \"require('node-addon-api').include\")",
-        "$(PWD)/.transbase/include"
+        "<!@(node -p \"require('./.transbase').include\")"
       ],
       "library_dirs": [
-        "$(PWD)/.transbase/lib"
+        "<!@(node -p \"require('./.transbase').lib\")"
       ],
       "libraries": [
         "-ltci"
