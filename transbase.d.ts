@@ -57,7 +57,7 @@ export declare interface ResultSet<T = unknown> {
     size: number
   ): { data: Buffer; hasMore: boolean } | null;
   /** return true if the given column number (starting with 1) or column name IS NULL */
-  isNull(colNumberOrName: number | string): boolnea;
+  isNull(colNumberOrName: number | string): boolean;
 }
 
 /**********************************
