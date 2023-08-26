@@ -199,7 +199,13 @@ class Transbase {
 const Attributes = {
   getColumnCount: getAttribute(Attribute.TCI_ATTR_COLUMN_COUNT),
   getColumnType: getAttribute(Attribute.TCI_ATTR_COLUMN_TYPE),
-  getColumnName: getAttribute(Attribute.TCI_ATTR_COLUMN_NAME, "string"),
+  getColumnName: (tci, col) => {
+    try {
+      return getAttribute(Attribute.TCI_ATTR_COLUMN_NAME, "string")(tci, col);
+    } catch (ignore) {
+      return col;
+    }
+  },
   getRecordsTouched: getAttribute(Attribute.TCI_ATTR_RECORDS_TOUCHED),
 };
 function getAttribute(attr, as = "number") {

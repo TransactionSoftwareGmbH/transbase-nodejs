@@ -260,7 +260,7 @@ public:
 		Char value[MAXIDENTSIZE];
 		auto attrKey = info[0].As<Napi::Number>().Uint32Value();
 		auto col = info.Length() > 1 ? info[1].As<Napi::Number>() : 1;
-		tci(TCIGetResultSetAttribute(resultSet, attrKey, col, &value, sizeof(value), NULL));
+		tci(TCIGetResultSetAttribute(resultSet, attrKey, col, &value, sizeof(value), NULL), true);
 		return Napi::String::New(env, value);
 	}
 
@@ -484,13 +484,15 @@ public:
 		}
 	}
 
-	void tci(TCIState state)
+	void tci(TCIState state, bool silent = false)
 	{
 		this->state = state;
 		if (state)
 		{
 			TCIGetError(error, 1, 1, errorMessage, sizeof(errorMessage), &errorCode, sqlcode);
-			printf("TCIError %d: %s\n SQLCode: %s\n", errorCode, errorMessage, sqlcode);
+			if(!silent){
+				printf("TCIError %d: %s\n SQLCode: %s\n", errorCode, errorMessage, sqlcode);
+			}
 			throw Napi::Error::New(env, errorMessage);
 		}
 	}

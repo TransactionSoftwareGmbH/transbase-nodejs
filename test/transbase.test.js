@@ -1,7 +1,6 @@
 const assert = require("assert").strict;
 const { Transbase } = require("../transbase");
 const config = require("./config");
-
 describe("Transbase.query", () => {
   const UID = String(Math.random()).substring(2, 12);
   let client;
@@ -138,7 +137,7 @@ describe("Transbase.query", () => {
       );
     });
 
-    it("can pass named paramters as object", () => {
+    it("can pass named parameters as object", () => {
       assert.equal(
         client
           .query(
@@ -456,6 +455,61 @@ describe("Transbase.query", () => {
 
     result = client.query("select hello();");
     assert.equal(1, result.toArray().length);
+  });
+
+  it("can run noop psm", () => {
+    const client = new Transbase(config);
+
+    try {
+      client.query("drop procedure noop");
+    } catch (ignore) {}
+
+    let result = client.query(`
+    create procedure noop() as
+    begin
+    end;
+    `);
+    assert.equal(0, result);
+
+    result = client.query("call noop();");
+    assert.ok(result);
+  });
+
+  it("can pass parameters to psm", () => {
+    const client = new Transbase(config);
+
+    try {
+      client.query("drop procedure p");
+    } catch (ignore) {}
+
+    let result = client.query(`create procedure p(
+      in    a integer,
+      out   b integer,
+      inout c integer,
+      in    d integer,
+      out   e integer,
+      inout f integer) as
+     begin
+       b := a;
+       c := c + c;
+       e := d;
+       f := f + f;
+     end;
+    `);
+    assert.equal(0, result);
+
+    result = client.query("call p(?, ?, ?, ?, ?, ?);", [1, 2, 3, 4, 5, 6]);
+    assert.deepEqual(result.next(), { 1: 1, 2: 6, 3: 4, 4: 12 });
+
+    result = client.query("call p(:a, :b, :c, :d, :e, :f);", {
+      a: 1,
+      b: 2,
+      c: 3,
+      d: 4,
+      e: 5,
+      f: 6,
+    });
+    assert.deepEqual(result.next(), { b: 1, c: 6, e: 4, f: 12 });
   });
 
   describe("transaction", () => {
